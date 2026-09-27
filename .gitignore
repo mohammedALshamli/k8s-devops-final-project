@@ -1,0 +1,8 @@
+﻿*.tfstate*
+.terraform/
+terraform.tfvars
+*.pem
+id_ed25519*
+k8slab_key*
+kubeconfig
+admin.conf

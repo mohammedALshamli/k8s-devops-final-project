@@ -1,0 +1,21 @@
+﻿# ============================================================
+# K8S DevOps Final Project
+# ============================================================
+# Project Owner      : Mohammed Alshamli
+# Email              : mohammedalshamly152@gmail.com
+# Environment        : Development Lab
+# Deployment         : VMware Workstation - Path B
+# Operating System   : Rocky Linux 9
+# Kubernetes Version : v1.36
+# ============================================================
+
+# Path B uses manually created VMware virtual machines.
+# No Azure deployment is performed for this project.
+
+subscription_id = "not-used-path-b"
+location        = "vmware-local"
+vm_size         = "2-vCPU-4GB"
+
+# VMware VMs:
+# Control Plane : k8slab-cp1 - 10.0.1.10
+# Worker        : k8slab-w1  - 10.0.1.11
