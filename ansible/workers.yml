@@ -1,0 +1,21 @@
+---
+- hosts: k8s_workers
+  become: true
+  tasks:
+    - name: Fetch join command from cp1
+      fetch:
+        src: /tmp/join-command.sh
+        dest: /tmp/join-command-from-cp1.sh
+        flat: true
+      delegate_to: cp1
+
+    - name: Copy join command to w1
+      copy:
+        src: /tmp/join-command-from-cp1.sh
+        dest: /tmp/join-command.sh
+        mode: "0755"
+
+    - name: Join cluster
+      shell: "bash /tmp/join-command.sh"
+      args:
+        creates: /etc/kubernetes/kubelet.conf

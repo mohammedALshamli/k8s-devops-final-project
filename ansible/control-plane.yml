@@ -1,0 +1,52 @@
+---
+- hosts: k8s_master
+  become: true
+  tasks:
+    - name: Check if cluster is already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: admin_conf
+
+    - name: Run kubeadm init
+      command: >
+        kubeadm init
+        --pod-network-cidr=192.168.0.0/16
+        --apiserver-advertise-address={{ cp1_ip }}
+      when: not admin_conf.stat.exists
+      register: kubeadm_init
+
+    - name: Create .kube directory for cluster_user
+      file:
+        path: "/home/{{ cluster_user }}/.kube"
+        state: directory
+        owner: "{{ cluster_user }}"
+        group: "{{ cluster_user }}"
+        mode: "0755"
+
+    - name: Copy admin.conf to cluster_user kubeconfig
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: "/home/{{ cluster_user }}/.kube/config"
+        remote_src: true
+        owner: "{{ cluster_user }}"
+        group: "{{ cluster_user }}"
+        mode: "0600"
+
+    - name: Apply Calico CNI v3.31.0
+      become_user: "{{ cluster_user }}"
+      environment:
+        KUBECONFIG: "/home/{{ cluster_user }}/.kube/config"
+      command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.0/manifests/calico.yaml
+      register: calico_apply
+      changed_when: "\"created\" in calico_apply.stdout or \"configured\" in calico_apply.stdout"
+
+    - name: Generate the kubeadm join command
+      command: kubeadm token create --print-join-command
+      register: join_command
+      changed_when: false
+
+    - name: Save join command to a file on cp1
+      copy:
+        content: "{{ join_command.stdout }}"
+        dest: /tmp/join-command.sh
+        mode: "0644"
