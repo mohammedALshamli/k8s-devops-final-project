@@ -1,0 +1,7 @@
+#cloud-config
+runcmd:
+%{ for key, node in nodes ~}
+  - echo "${node.private_ip} ${node.hostname}" >> /etc/hosts
+%{ endfor ~}
+  - systemctl enable --now chronyd
+  - timedatectl set-ntp true
