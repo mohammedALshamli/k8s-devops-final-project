@@ -6,3 +6,9 @@ id_ed25519*
 k8slab_key*
 kubeconfig
 admin.conf
+
+app/*.db
+app/.pytest_cache/
+app/__pycache__/
+
+app/instance/

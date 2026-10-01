@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List | Mohammed Alshamili</title>
+  <style>
+    :root {
+      --bg: #eef2f6;
+      --text: #191414;
+      --text-muted: #6a6a6a;
+
+      --clay-surface: #ffffff;
+      --clay-radius-lg: 24px;
+      --clay-radius-md: 16px;
+      --clay-radius-sm: 12px;
+
+      --clay-shadow-card:
+        8px 10px 20px rgba(166, 180, 200, 0.30),
+        -6px -6px 16px rgba(255, 255, 255, 0.75),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+        inset -1px -1px 3px rgba(166, 180, 200, 0.15);
+
+      --clay-shadow-inset:
+        inset 2px 2px 4px rgba(166, 180, 200, 0.25),
+        inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+
+      --clay-shadow-btn:
+        4px 6px 14px rgba(0, 113, 227, 0.25),
+        -2px -2px 6px rgba(255, 255, 255, 0.6),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.35),
+        inset -1px -1px 3px rgba(0, 0, 0, 0.12);
+
+      --accent-primary: #0071e3;
+      --accent-active: #1ed760;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Circular", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      padding: 48px 16px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    header {
+      padding: 0 8px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .form-card {
+      background: var(--clay-surface);
+      border-radius: var(--clay-radius-lg);
+      box-shadow: var(--clay-shadow-card);
+      padding: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .input-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border-radius: var(--clay-radius-md);
+      box-shadow: var(--clay-shadow-inset);
+      padding: 4px 16px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      height: 48px;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+    }
+
+    select {
+      height: 48px;
+      border: none;
+      background: var(--bg);
+      border-radius: var(--clay-radius-md);
+      box-shadow: var(--clay-shadow-inset);
+      padding: 0 16px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+      font-family: inherit;
+    }
+
+    button.cta-btn {
+      height: 48px;
+      padding: 0 24px;
+      background: var(--accent-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--clay-radius-md);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--clay-shadow-btn);
+      transition: transform 0.15s ease, filter 0.15s ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    button.cta-btn:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    button.cta-btn:active {
+      transform: translateY(1px);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .task-card {
+      background: var(--clay-surface);
+      border-radius: var(--clay-radius-lg);
+      box-shadow: var(--clay-shadow-card);
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .task-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .task-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .priority-pill {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 20px;
+      box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 1px 2px 4px rgba(0, 0, 0, 0.04);
+      flex-shrink: 0;
+    }
+
+    .priority-low {
+      background: #e9f7ef;
+      color: #1e7e34;
+    }
+
+    .priority-medium {
+      background: #fff8e8;
+      color: #b7791f;
+    }
+
+    .priority-high {
+      background: #fdeeee;
+      color: #c53030;
+    }
+
+    .toggle-btn {
+      background: var(--bg);
+      border: none;
+      color: var(--text-muted);
+      height: 36px;
+      padding: 0 16px;
+      border-radius: var(--clay-radius-sm);
+      box-shadow: 1px 2px 4px rgba(166, 180, 200, 0.25), -1px -1px 3px rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+
+    .toggle-btn:hover {
+      color: var(--text);
+    }
+
+    .task-card.is-done {
+      opacity: 0.65;
+    }
+
+    .task-card.is-done .task-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 0;
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 8px;
+      opacity: 0.75;
+    }
+
+    @media (max-width: 600px) {
+      .form-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .input-wrapper,
+      select,
+      button.cta-btn {
+        width: 100%;
+      }
+
+      .task-card {
+        padding: 16px;
+      }
+
+      .task-content {
+        gap: 10px;
+      }
+
+      .task-title {
+        overflow-wrap: anywhere;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>To-Do List</h1>
+      <p class="subtitle">Simple task management</p>
+    </header>
+
+    <form class="form-card" action="{{ url_for('create_task_ui') }}" method="post">
+      <div class="input-wrapper">
+        <input type="text" name="title" placeholder="New task..." required autocomplete="off">
+      </div>
+      <select name="priority">
+        {% for p in priorities %}
+          <option value="{{ p }}" {% if p == 'medium' %}selected{% endif %}>{{ p|capitalize }}</option>
+        {% endfor %}
+      </select>
+      <button class="cta-btn" type="submit">Add</button>
+    </form>
+
+    <ul class="task-list">
+      {% for task in tasks %}
+        <li class="task-card {{ 'is-done' if task.done else '' }}">
+          <div class="task-content">
+            <span class="priority-pill priority-{{ task.priority }}">{{ task.priority }}</span>
+            <span class="task-title">{{ task.title }}</span>
+          </div>
+          <form action="{{ url_for('toggle_task_ui', task_id=task.id) }}" method="post" style="margin: 0;">
+            <button class="toggle-btn" type="submit">{{ 'Undo' if task.done else 'Done' }}</button>
+          </form>
+        </li>
+      {% else %}
+        <li class="empty-state">No tasks pending. Clean desk, clear mind.</li>
+      {% endfor %}
+    </ul>
+
+    <footer>
+      Mohammed Alshamili &middot; DevOps Final Project
+    </footer>
+  </main>
+</body>
+</html>
