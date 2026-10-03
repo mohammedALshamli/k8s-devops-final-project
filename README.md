@@ -1,2 +1,62 @@
-﻿# k8s-devops-final-project
-⌊‣慔歳ㄠ″胢ₔ畋敢湲瑥獥倠敲敲畱獩瑩獥☠䌠湯慴湩牥删湵楴敭ਊ⌣‣潃据灥⁴畑獥楴湯⁳…湁睳牥ੳ⨊優㨱圠票搠敯⁳畫敢敬⁴敲畦敳琠⁯畲⁮晩匠䅗⁐獩攠慮汢摥⨿ਪ‾⨪湁睳牥⨺‪歠扵汥瑥⁠敲楬獥漠⁮捡畣慲整洠浥牯⁹捡潣湵楴杮映牯瀠摯猠档摥汵湩⁧湡⁤敲潳牵散攠楶瑣潩⁮敤楣楳湯⹳匠慷⁰湩牴摯捵獥甠灮敲楤瑣扡敬洠浥牯⁹数晲牯慭据⁥湡⁤牢慥獫洠浥牯⁹污潬慣楴湯朠慵慲瑮敥ⱳ猠⁯畋敢湲瑥獥攠灸楬楣汴⁹敲畱物獥椠⁴潴戠⁥楤慳汢摥ਮ⨊優㨲圠票洠獵⁴潣瑮楡敮摲愠摮欠扵汥瑥猠慨敲琠敨猠浡⁥杣潲灵搠楲敶㽲⨪㸊⨠䄪獮敷㩲⨪䤠⁦桴祥甠敳搠晩敦敲瑮搠楲敶獲⠠捠牧畯晰恳瘠⁳獠獹整摭⥠‬楌畮⁸敲潳牵散氠浩瑩⁳湡⁤牰捯獥⁳楨牥牡档敩⁳牡⁥牴捡敫⁤湩潣獮獩整瑮祬戠瑥敷湥琠敨琠潷洠湡条浥湥⁴湥楧敮ⱳ挠畡楳杮猠獹整⁭湩瑳扡汩瑩⁹湡⁤慦汩摥瀠摯⹳䬠扵牥敮整⁳瑳楲瑣祬爠煥極敲⁳潢桴琠⁯獵⁥獠獹整摭⹠ਊ⌣吠獡⁫㐱钀䌠湯牴汯倠慬敮䤠楮楴污穩瑡潩⁮…乃⁉敓畴ੰ⌊⌣䌠湯散瑰儠敵瑳潩獮☠䄠獮敷獲ਊ⨪ㅑ›桗⁹獩怠ⴭ潰ⵤ敮睴牯⵫楣牤ㄽ㈹ㄮ㠶〮〮ㄯ怶猠数楣楦摥搠牵湩⁧歠扵慥浤椠楮恴⨿ਪ‾⨪湁睳牥⨺‪瑉搠晥湩獥琠敨䤠⁐摡牤獥⁳汢捯⁫敲敳癲摥映牯倠摯⁳捡潲獳琠敨挠畬瑳牥‮慃楬潣䌠䥎攠灸捥獴怠㤱⸲㘱⸸⸰⼰㘱⁠祢搠晥畡瑬※敳瑴湩⁧桴獩攠慸瑣爠湡敧搠牵湩⁧歠扵慥浤椠楮恴瀠敲敶瑮⁳偉愠汬捯瑡潩⁮潣汬獩潩獮愠摮爠畯楴杮映楡畬敲⁳敢睴敥⁮汣獵整⁲潮敤⁳湡⁤潰獤ਮ⨊優㨲圠慨⁴獩琠敨爠汯⁥景琠敨䌠䥎瀠畬楧⁮䌨污捩⥯‬湡⁤桷瑡栠灡数獮椠⁦瑩椠⁳浯瑩整㽤⨪㸊⨠䄪獮敷㩲⨪吠敨䌠湯慴湩牥丠瑥潷歲䤠瑮牥慦散⠠乃⥉挠湯楦畧敲⁳敮睴牯⁫慮敭灳捡獥‬獡楳湧⁳偉愠摤敲獳獥琠⁯潐獤‬湡⁤潲瑵獥琠慲晦捩愠牣獯⁳潮敤⹳䤠⁦浯瑩整Ɽ渠摯獥爠浥楡⁮湩愠怠潎剴慥祤⁠瑳瑡ⱥ䌠牯䑥华瀠摯⁳慣湮瑯愠煣極敲䤠⁐摡牤獥敳⁳湡⁤瑳祡猠畴正椠⁮偠湥楤杮⁠牯怠潃瑮楡敮䍲敲瑡湩恧‬湡⁤潮愠灰楬慣楴湯眠牯汫慯⁤慣⁮捳敨畤敬漠⁲潣浭湵捩瑡⹥ਊ⌣吠獡⁫㔱钀圠牯敫⁲潎敤䨠楯⁮…汃獵整⁲敖楲楦慣楴湯ਊ⌣‣潃据灥⁴畑獥楴湯⁳…湁睳牥ੳ⨊優㨱圠票洠獵⁴桴⁥潣瑮潲⵬汰湡⁥汰祡潢歯爠湵戠晥牯⁥桴⁥潷歲牥⁳汰祡潢歯⨿ਪ‾⨪湁睳牥⨺‪歠扵慥浤椠楮恴洠獵⁴敧敮慲整琠敨挠畬瑳牥䌠⁁散瑲晩捩瑡獥‬湩瑩慩楬敺琠敨䬠扵牥敮整⁳偁⁉敳癲牥‬湡⁤牰摯捵⁥湡愠瑣癩⁥潢瑯瑳慲⁰潴敫⁮湯琠敨挠湯牴汯瀠慬敮映物瑳‮⁁潷歲牥渠摯⁥慣湮瑯樠楯⁮⁡潮⵮硥獩整瑮挠畬瑳牥※硥捥瑵湩⁧桴⁥汰祡潢歯⁳畯⁴景漠摲牥挠畡敳⁳桴⁥潷歲牥猧樠楯⁮牰捯獥⁳潴琠浩⁥畯⁴桷汩⁥瑡整灭楴杮琠⁯潣湮捥⁴潴愠⁮景汦湩⁥偁⁉敳癲牥ਮ⌊‣慔歳㈠‰胢ₔ湅楧敮牥湩⁧潐瑳䴭牯整獭ਊ⌣‣潐瑳䴭牯整㩭圠牯敫⁲潪湩猠牣灩⁴敮敶⁲敲捡敨⁳睠怱⠠睠牯敫獲礮汭⥠ਊ‪⨪牅潲㩲⨪吠敨爠晥牥湥散怠潷歲牥⹳浹恬映瑥档摥怠琯灭樯楯⵮潣浭湡⹤桳⁠楷桴怠敤敬慧整瑟㩯挠ㅰ⁠湡⁤桴湥爠湡怠慢桳⼠浴⽰潪湩挭浯慭摮献恨漠⁮睠怱‮慃杵瑨搠牵湩⁧潣敤爠癥敩⁷敢潦敲攠數畣楴湯›湯怠ㅷ⁠桴獩眠畯摬映楡⁬楷桴怠慢桳›琯灭樯楯⵮潣浭湡⹤桳›潎猠捵⁨楦敬漠⁲楤敲瑣牯恹ਮ‪⨪慃獵㩥⨪怠敦捴恨挠灯敩⁳⁡楦敬映潲⁭桴⁥敤敬慧整⁤潨瑳琠⁯桴⁥湁楳汢⁥潣瑮潲汬牥‮效敲琠敨挠湯牴汯敬⁲獩怠灣怱椠獴汥ⱦ猠⁯桴⁥楦敬猠慴獹漠⁮捠ㅰ⁠湡⁤獩渠癥牥瀠慬散⁤湯怠ㅷⱠ眠敨敲琠敨怠桳汥恬琠獡⁫畲獮ਮ‪⨪楆㩸⨪䬠灥⁴桴⁥晠瑥档⁠慴歳愠摮愠摤摥愠怠潣祰⁠慴歳琠慨⁴異桳獥琠敨映汩⁥牦浯琠敨挠湯牴汯敬⁲潴怠ㅷ⁠怨琯灭樯楯⵮潣浭湡⹤桳Ⱡ洠摯⁥㜰㔵 敢潦敲怠桳汥㩬戠獡⁨琯灭樯楯⵮潣浭湡⹤桳⹠吠敨怠牣慥整㩳⼠瑥⽣畫敢湲瑥獥欯扵汥瑥挮湯恦朠慵摲欠敥獰琠敨樠楯⁮摩浥潰整瑮‮桔⁥敳潣摮怠楳整礮汭⁠畲⁮潣普物敭⁤瑩›䩠楯⁮汣獵整恲爠瑥牵敮⁤潠恫⠠歳灩数⁤祢琠敨朠慵摲 湡⁤潢桴渠摯獥猠慴敹⁤剠慥祤⹠ਊ⌣吠獡⁫㘱钀吠獡⁫牔捡敫⁲楍牣獯牥楶散☠唠楮⁴敔瑳湩੧⌊⌣䤠灭敬敭瑮瑡潩⁮畓浭牡੹‭⨪牁档瑩捥畴敲⨪›汆獡⁫業牣獯牥楶散甠楴楬楺杮匠䱑汁档浥⁹剏⁍畳灰牯楴杮戠瑯⁨兓楌整⠠潬慣⁬敤敶潬浰湥⥴愠摮倠獯杴敲兓⁌瀨潲畤瑣潩⽮畋敢湲瑥獥⸩ⴊ⨠䌪牯⁥敆瑡牵⩥㨪䤠灭敬敭瑮摥搠湹浡捩怠牰潩楲祴⁠楦汥⁤怨潬恷‬浠摥畩恭‬桠杩恨 捡潲獳戠捡敫摮洠摯汥ⱳ删卅晔汵䄠䥐ⱳ愠摮琠敨唠⁉慬敹⹲ⴊ⨠䘪潲瑮湥⩤㨪䐠獥杩敮⁤湡䄠灰敬椭獮楰敲⁤業楮慭楬瑳䌠慬浹牯桰獩⁭䥕眠瑩⁨汣慥⁮祴潰牧灡票‬慢慬据摥猠慨潤獷‬畦汬洠扯汩⁥敲灳湯楳敶敮獳‬湡⁤湩整慲瑣癩⁥瑳瑡⁥慭慮敧敭瑮ਮ‭⨪畑污瑩⁹獁畳慲据⩥㨪㔠愠瑵浯瑡摥甠楮⁴整瑳⁳浩汰浥湥整⁤楷桴怠祰整瑳⁠敶楲祦湩⁧敨污桴挠敨正ⱳ搠晥畡瑬瀠楲牯瑩⁹慦汬慢正‬硥汰捩瑩瀠楲牯瑩⁹敳瑴湩Ⱨ愠摮椠灮瑵瘠污摩瑡潩⹮ⴊ⨠䌪湯慴湩牥穩瑡潩⩮㨪匠慴摮牡楤敺⁤䑠捯敫晲汩恥戠極瑬漠⁮灠瑹潨㩮⸳ㄱ猭楬恭‬畲湮湩⁧楷桴愠⁮湵牰癩汩来摥猠牥楶散甠敳⁲怨灡異敳恲唠䑉ㄠ〰㄰ 潦⁲瑳楲瑣䬠扵牥敮整⁳敳畣楲祴挠湯整瑸挠浯汰慩据⹥਍⌊‣慔歳ㄠ‷胢ₔ牐摯捵楴湯䐠捯敫晲汩⁥…潄正牥䌠浯潰敳ਊ⌣‣浉汰浥湥慴楴湯匠浵慭祲ⴊ⨠䐪捯敫晲汩⩥㨪怠祰桴湯㌺ㄮⴲ汳浩⁠慢敳‬䅠偐噟剅䥓乏⁠畢汩⁤牡Ⱨ氠祡牥挭捡敨⁤敤数摮湥祣椠獮慴汬‬潮⵮潲瑯怠灡異敳恲⠠䥕⁄〱〰⤱‬杠湵捩牯恮漠⁮潰瑲㔠〰⸰ⴊ⨠搪捯敫⵲潣灭獯⹥浹⩬㨪怠扤⁠敳癲捩⁥倨獯杴敲兓⁌㘱‬慮敭⁤潶畬敭怠扤摟瑡恡‬敨污桴档捥⁫楶⁡灠彧獩敲摡恹 湡⁤睠扥⁠敳癲捩⁥戨極瑬映潲⁭慠灰怯‬慷瑩⁳潦⁲摠恢琠⁯敢栠慥瑬票⸩ⴊ⨠嘪牥晩捩瑡潩⩮㨪怠潤正牥挠浯潰敳甠⁰搭ⴠ戭極摬⁠牢畯桧⁴潢桴猠牥楶散⁳潴怠灕⽠啠⁰栨慥瑬票怩‮⽠敨污桴⁠湡⁤⽠敲摡恹攠摮潰湩獴爠瑥牵敮⁤〲‰楷桴瘠污摩䨠体⹎吠獡獫挠敲瑡摥瘠慩琠敨唠⽉偁⁉数獲獩整⁤捡潲獳怠潤正牥挠浯潰敳爠獥慴瑲搠恢‬潣普物業杮琠敨渠浡摥瘠汯浵⁥潣牲捥汴⁹牰獥牥敶⁳潐瑳牧卥䱑搠瑡⁡湩敤数摮湥⁴景挠湯慴湩牥氠晩捥捹敬ਮ⌊⌣䌠湯散瑰儠敵瑳潩獮☠䄠獮敷獲ਊ⨪ㅑ›桗瑡椠⁳桴⁥摡慶瑮条⁥景甠楳杮愠怠汳浩⁠祐桴湯戠獡⁥浩条⁥潣灭牡摥琠⁯⁡瑳湡慤摲椠慭敧⨿ਪ‾⨪湁睳牥⨺‪⁁汳浩椠慭敧猠牴灩⁳畯⁴畢汩⁤潴汯ⱳ搠捯浵湥慴楴湯‬湡⁤硥牴⁡祳瑳浥氠扩慲楲獥渠瑯渠敥敤⁤瑡爠湵楴敭‬敲畳瑬湩⁧湩愠猠慭汬牥愠瑴捡⁫畳晲捡ⱥ映睥牥䌠䕖⁳潴瀠瑡档‬湡⁤楳湧晩捩湡汴⁹慦瑳牥椠慭敧瀠汵獬戯極摬⁳湩䌠⽉䑃瀠灩汥湩獥ਮ⨊優㨲圠慨⁴獩琠敨漠数慲楴湯污搠晩敦敲据⁥敢睴敥⁮桴⁥⽠敨污桴⁠湡⁤⽠敲摡恹攠摮潰湩獴⨿ਪ‾⨪湁睳牥⨺‪⽠敨污桴⁠湯祬挠湯楦浲⁳桴⁥牰捯獥⁳瑩敳晬椠⁳污癩⁥湡⁤敲灳湯楤杮⠠楬敶敮獳 湡⁤敮敶⁲潴捵敨⁳硥整湲污搠灥湥敤据敩ⱳ猠⁯⁡潭楮潴楲杮猠獹整⁭慣⁮敲瑳牡⁴⁡牴汵⁹畨杮挠湯慴湩牥‮⽠敲摡恹愠摤瑩潩慮汬⁹硥捥瑵獥愠氠杩瑨敷杩瑨焠敵祲愠慧湩瑳倠獯杴敲兓ⱌ挠湯楦浲湩⁧桴⁥灡⁰慣⁮敳癲⁥敲污琠慲晦捩漠汮⁹湯散椠獴搠瑡扡獡⁥敤数摮湥祣椠⁳敲捡慨汢⁥爨慥楤敮獳 胢ₔ桴獩椠⁳桷瑡猠潨汵⁤慧整琠慲晦捩爠畯楴杮椠⁮畋敢湲瑥獥മਊ‾⨪潐瑲䴠灡楰杮丠瑯㩥⨪䠠獯⁴潰瑲㔠㔰‰獩洠灡数⁤潴挠湯慴湩牥瀠牯⁴〵〰⠠㕠㔰㨰〵〰⥠搠敵琠⁯楗摮睯⁳祈数⵲⁖ 楗乮呁爠獥牥楶杮瀠牯⁴〵〰漠⁮桴⁥潬慣⁬潨瑳‮汁⁬灡汰捩瑡潩⁮湥灤楯瑮⁳牡⁥捡散獳扩敬瘠慩怠瑨灴⼺氯捯污潨瑳㔺㔰怰മ
+# k8s-devops-final-project
+
+## Task 13 — Kubernetes Prerequisites & Container Runtime
+
+### Concept Questions & Answers
+
+**Q1: Why does kubelet refuse to run if SWAP is enabled?**
+> **Answer:** `kubelet` relies on accurate memory accounting for pod scheduling and resource eviction decisions. Swap introduces unpredictable memory performance and breaks memory allocation guarantees, so Kubernetes explicitly requires it to be disabled.
+
+**Q2: Why must containerd and kubelet share the same cgroup driver?**
+> **Answer:** If they use different drivers (`cgroupfs` vs `systemd`), Linux resource limits and process hierarchies are tracked inconsistently between the two management engines, causing system instability and failed pods. Kubernetes strictly requires both to use `systemd`.
+
+## Task 14 — Control Plane Initialization & CNI Setup
+
+### Concept Questions & Answers
+
+**Q1: Why is `--pod-network-cidr=192.168.0.0/16` specified during `kubeadm init`?**
+> **Answer:** It defines the IP address block reserved for Pods across the cluster. Calico CNI expects `192.168.0.0/16` by default; setting this exact range during `kubeadm init` prevents IP allocation collisions and routing failures between cluster nodes and pods.
+
+**Q2: What is the role of the CNI plugin (Calico), and what happens if it is omitted?**
+> **Answer:** The Container Network Interface (CNI) configures network namespaces, assigns IP addresses to Pods, and routes traffic across nodes. If omitted, nodes remain in a `NotReady` state, CoreDNS pods cannot acquire IP addresses and stay stuck in `Pending` or `ContainerCreating`, and no application workload can schedule or communicate.
+
+## Task 15 — Worker Node Join & Cluster Verification
+
+### Concept Questions & Answers
+
+**Q1: Why must the control-plane playbook run before the workers playbook?**
+> **Answer:** `kubeadm init` must generate the cluster CA certificates, initialize the Kubernetes API server, and produce an active bootstrap token on the control plane first. A worker node cannot join a non-existent cluster; executing the playbooks out of order causes the worker's join process to time out while attempting to connect to an offline API server.
+
+## Task 20 — Engineering Post-Mortems
+
+### Post-Mortem: Worker join script never reaches `w1` (`workers.yml`)
+
+* **Error:** The reference `workers.yml` fetched `/tmp/join-command.sh` with `delegate_to: cp1` and then ran `bash /tmp/join-command.sh` on `w1`. Caught during code review before execution: on `w1` this would fail with `bash: /tmp/join-command.sh: No such file or directory`.
+* **Cause:** `fetch` copies a file from the delegated host to the Ansible controller. Here the controller is `cp1` itself, so the file stays on `cp1` and is never placed on `w1`, where the `shell` task runs.
+* **Fix:** Kept the `fetch` task and added a `copy` task that pushes the file from the controller to `w1` (`/tmp/join-command.sh`, mode 0755) before `shell: bash /tmp/join-command.sh`. The `creates: /etc/kubernetes/kubelet.conf` guard keeps the join idempotent. The second `site.yml` run confirmed it: `Join cluster` returned `ok` (skipped by the guard) and both nodes stayed `Ready`.
+
+## Task 16 — Task Tracker Microservice & Unit Testing
+
+### Implementation Summary
+- **Architecture**: Flask microservice utilizing SQLAlchemy ORM supporting both SQLite (local development) and PostgreSQL (production/Kubernetes).
+- **Core Feature**: Implemented dynamic `priority` field (`low`, `medium`, `high`) across backend models, RESTful APIs, and the UI layer.
+- **Frontend**: Designed an Apple-inspired minimalist Claymorphism UI with clean typography, balanced shadows, full mobile responsiveness, and interactive state management.
+- **Quality Assurance**: 5 automated unit tests implemented with `pytest` verifying health checks, default priority fallback, explicit priority setting, and input validation.
+- **Containerization**: Standardized `Dockerfile` built on `python:3.11-slim`, running with an unprivileged service user (`appuser` UID 10001) for strict Kubernetes security context compliance.
+
+## Task 17 — Production Dockerfile & Docker Compose
+
+### Implementation Summary
+- **Dockerfile**: `python:3.12-slim` base, `APP_VERSION` build arg, layer-cached dependency install, non-root `appuser` (UID 10001), `gunicorn` on port 5000.
+- **docker-compose.yml**: `db` service (PostgreSQL 16, named volume `db_data`, healthcheck via `pg_isready`) and `web` service (built from `app/`, waits for `db` to be healthy).
+- **Verification**: `docker compose up -d --build` brought both services to `Up`/`Up (healthy)`. `/health` and `/ready` endpoints returned 200 with valid JSON. Tasks created via the UI/API persisted across `docker compose restart db`, confirming the named volume correctly preserves PostgreSQL data independent of container lifecycle.
+
+### Concept Questions & Answers
+
+**Q1: What is the advantage of using a `slim` Python base image compared to a standard image?**
+> **Answer:** A slim image strips out build tools, documentation, and extra system libraries not needed at runtime, resulting in a smaller attack surface, fewer CVEs to patch, and significantly faster image pulls/builds in CI/CD pipelines.
+
+**Q2: What is the operational difference between the `/health` and `/ready` endpoints?**
+> **Answer:** `/health` only confirms the process itself is alive and responding (liveness) and never touches external dependencies, so a monitoring system can restart a truly hung container. `/ready` additionally executes a lightweight query against PostgreSQL, confirming the app can serve real traffic only once its database dependency is reachable (readiness) — this is what should gate traffic routing in Kubernetes.
+
+> **Port Mapping Note:** Host port 5050 is mapped to container port 5000 (`5050:5000`) due to Windows Hyper-V / WinNAT reserving port 5000 on the local host. All application endpoints are accessible via `http://localhost:5050`.
