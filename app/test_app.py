@@ -3,7 +3,7 @@ import tempfile
 import pytest
 
 from app import create_app
-from models import db, Task
+from models import db
 
 
 @pytest.fixture

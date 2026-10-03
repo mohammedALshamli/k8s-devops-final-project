@@ -8,8 +8,8 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app import create_app
-from models import db, Task
+from app import create_app  # noqa: E402
+from models import db, Task  # noqa: E402
 
 SAMPLE_TASKS = [
     {"title": "Set up VMware NAT network", "priority": "high", "done": True},
