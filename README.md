@@ -413,3 +413,46 @@ Verified required tooling on the host machine:
 * **Error:** Following workstation restart, pinging and SSH access from the laptop to `k8slab-cp1` (`10.0.1.10`) failed with `General failure (status 11050)` and socket `Permission denied`.
 * **Cause:** Proton VPN service resumed on Windows boot and activated its Windows Filtering Platform (WFP) firewall filter, blocking non-tunneled outgoing packets to the private VMware NAT subnet (`10.0.1.0/24`).
 * **Fix:** Allowed local area network (LAN) traffic in VPN split-tunneling settings, instantly restoring bi-directional IP and SSH connectivity between the workstation host and the VMware VMnet8 virtual network adapter (`10.0.1.1`).
+
+---
+
+## Task 18 — GitHub Actions CI/CD Pipeline
+
+### Implementation Summary
+- **Workflow Triggers:** Configured `.github/workflows/ci-cd.yml` to trigger automatically on push and pull-request events targeting the `main` branch.
+- **Automated Pipeline Jobs:**
+  1. **Lint & Test:** Sets up Python 3.12, installs dependencies, enforces style guides via `flake8`, and executes unit tests via `pytest`.
+  2. **Terraform Validation:** Runs `terraform fmt -check` and `terraform validate` to enforce IaC code hygiene prior to deployment.
+  3. **Build & Publish:** Authenticates to GitHub Container Registry using `${{ secrets.GITHUB_TOKEN }}` and utilizes Docker Buildx to compile and push multi-tagged images (`latest` and git commit SHA).
+- **Registry Artifact:** Container published to `ghcr.io/mohammedalshamli/k8s-devops-final-project:latest`.
+
+### Technical Questions & Answers
+
+**Q1: Why separate linting and testing from the Docker image build into distinct pipeline jobs?**
+> **Answer:** Adhering to the "Fail-Fast" principle. Linting and unit tests execute significantly faster and consume fewer compute resources than container builds. Failing early stops the pipeline before invoking computationally intensive image generation and registry uploads, preventing broken or vulnerable code from ever producing a deployable artifact.
+
+**Q2: What is the security advantage of publishing to GHCR using `${{ secrets.GITHUB_TOKEN }}` over Docker Hub with static credentials?**
+> **Answer:** The default `GITHUB_TOKEN` is dynamically generated, scoped exclusively to the specific repository, and short-lived (invalidated once the workflow completes). This eliminates the risk of leaking permanent personal access tokens or static user passwords stored in third-party CI environments.
+
+---
+
+## Task 19 — Kubernetes Production Deployment
+
+### Implementation Summary
+- **Cluster Components:** Deployed on a two-node Kubernetes cluster (`k8slab-cp1` control-plane and `k8slab-w1` worker) using Calico CNI networking.
+- **Manifest Architecture:**
+  - `postgres-secret.yaml`: Secure credential storage for PostgreSQL authentication and application database connection strings.
+  - `postgres-pvc.yaml`: Declares 2Gi storage capacity with `manual` storage class (`hostPath`), dynamically bound to `postgres-pv`.
+  - `postgres-deployment.yaml`: Database workload configured with permission-fixing init-containers and native `pg_isready` readiness probes.
+  - `postgres-service.yaml`: Internal `ClusterIP` exposing port `5432` to the cluster network.
+  - `app-deployment.yaml`: Application tier pulling directly from GHCR, guarded with HTTP `/health` (Liveness) and `/ready` (Readiness) probes.
+  - `app-service.yaml`: External ingress configured via `NodePort` mapping node port `30080` to container port `5000`.
+- **Verification:** Both pods stabilized at `1/1 Running`. Tested self-healing and data persistence across pod restarts via `http://10.0.1.11:30080`.
+
+### Technical Questions & Answers
+
+**Q1: What is the operational difference between a `ClusterIP` and a `NodePort` service?**
+> **Answer:** A `ClusterIP` assigns an internal virtual IP reachable exclusively within the cluster, securing backend components like PostgreSQL from external access. A `NodePort` exposes the service on a dedicated high-range port (30000–32767) across all physical cluster nodes, allowing external clients to access the frontend application directly via `<NodeIP>:<NodePort>`.
+
+**Q2: Why mount storage using a `PersistentVolumeClaim` (PVC) instead of direct `hostPath` mounts in the Deployment spec?**
+> **Answer:** Decoupling and abstraction. A PVC abstracts the underlying storage infrastructure from the application developer. It ensures that storage lifecycle is managed independently of the Pod lifecycle, allowing orchestrators to remount and preserve persistent state even if pods are rescheduled, restarted, or updated.
