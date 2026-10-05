@@ -456,3 +456,49 @@ Verified required tooling on the host machine:
 
 **Q2: Why mount storage using a `PersistentVolumeClaim` (PVC) instead of direct `hostPath` mounts in the Deployment spec?**
 > **Answer:** Decoupling and abstraction. A PVC abstracts the underlying storage infrastructure from the application developer. It ensures that storage lifecycle is managed independently of the Pod lifecycle, allowing orchestrators to remount and preserve persistent state even if pods are rescheduled, restarted, or updated.
+
+## Task 20 — Project Documentation & Engineering Post-Mortems
+
+All quick reproduction commands and technical Q&A answers for Tasks 1-17 are documented inline above. Below are three in-depth Engineering Post-Mortems from real issues encountered and resolved during execution, followed by a brief incident log of additional issues.
+
+---
+
+### Post-Mortem 1: SCP Infinite Recursion - Maximum Directory Depth Exceeded
+
+- **Error:**
+scp: Maximum directory depth exceeded: 64 levels
+
+- **Cause:** The command `scp -r ouda@10.0.1.10:~/k8s-devops-final-project/k8s .` was intended to pull manifests from `cp1` down to the Windows laptop. It was instead run from inside `k8slab-cp1` itself while already positioned inside `~/k8s-devops-final-project/k8s`. SCP opened a self-referential SSH connection back to the same VM and began recursively copying the folder into itself (`k8s/k8s/k8s/...`) until it hit OpenSSH's hard limit of 64 nested directory levels.
+- **Fix:** Removed the runaway nested directory with `rm -rf ~/k8s-devops-final-project/k8s/k8s` on the VM, then strictly separated terminal contexts going forward: `scp` pull commands run only from the Windows PowerShell host, never from inside an active SSH session on the VM itself.
+
+---
+
+### Post-Mortem 2: kubectl Defaulting to localhost:8080 on Windows
+
+- **Error:**
+Unable to connect to the server: dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it.
+
+- **Cause:** `kubectl` was installed on the Windows laptop, but no `kubeconfig` existed at the default path (`C:\Users\DELL\.kube\config`). With no active cluster context, `kubectl` fell back to its legacy default of trying to reach an unencrypted local API server at `localhost:8080`, instead of the real API server running on `k8slab-cp1:6443`, and the connection was refused outright.
+- **Fix:** Restricted all `kubectl` cluster administration (`apply`, `get`, `describe`) to execute only from inside `k8slab-cp1`, where `admin.conf` and the correct API server credentials already exist for the `mohamed` user.
+
+---
+
+### Post-Mortem 3: SQLAlchemy Database Driver Mismatch (psycopg vs psycopg2)
+
+- **Error:**
+ModuleNotFoundError: No module named 'psycopg'
+
+[ERROR] Worker failed to boot.
+- **Cause:** The connection string used the generic scheme `postgresql://`. SQLAlchemy 2.0 defaults an unqualified `postgresql://` URL to the newer `psycopg` (v3) driver, but only `psycopg2-binary` was actually installed in `requirements.txt`, causing every gunicorn worker to crash immediately on import.
+- **Fix:** Changed `DATABASE_URL` to explicitly specify the installed driver: `postgresql+psycopg2://taskuser:taskpass@db:5432/taskdb`. Verified the fix by rebuilding and confirming `docker compose ps` showed the `web` service `Up` with no further restarts.
+
+---
+
+### Additional Issues Encountered (brief log)
+
+- **Port 5000 blocked by Windows WinNAT/Hyper-V:** Docker could not bind host port 5000 (reserved by `PID 4 - System`); remapped to `5050:5000` in `docker-compose.yml`.
+- **PowerShell mangling quoted JSON in curl:** Escaped `\"` characters broke `curl.exe -d` payloads; resolved by using single-quoted JSON bodies.
+- **Concurrent `db.create_all()` race on first boot:** Two gunicorn workers tried creating the `tasks` table simultaneously (`UniqueViolation: pg_type_typname_nsp_index`); self-resolved on gunicorn's automatic worker restart.
+- **500 error immediately after `docker compose restart db`:** Postgres needs a few seconds to re-initialize; confirmed data persisted correctly once the healthcheck passed.
+- **Git authentication failures when pushing from inside the VM:** `Author identity unknown` / `Authentication failed` due to missing Git identity and GitHub SSH key on the Linux user; repository pushes are handled exclusively from the pre-configured Windows environment.
+- **Mixing PowerShell and Bash syntax across terminals:** Pasting PowerShell commands (`Set-Content`, `New-Item`) into an active Linux SSH session caused `command not found` errors; resolved by always confirming the active shell before running multi-line commands.
