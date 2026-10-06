@@ -58,7 +58,9 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:40px}
 .rate{display:flex;gap:4px;font-size:28px}
 .rate b{cursor:pointer;color:var(--field);font-weight:400}
 .rate b.on{color:#f5a623}
-.mact{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+.mact{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:6px}
+.mact button.danger{margin-right:auto;color:#ff3b30;background:rgba(255,59,48,.12);box-shadow:none}
+.mact button.danger:hover{background:rgba(255,59,48,.22)}
 @media(max-width:600px){.add{flex-wrap:wrap}.add .grow{flex-basis:100%}.add select,.add .props{flex:1}.add .primary{flex:1}h1{font-size:32px}.task{padding:16px}}
 </style>
 </head>
@@ -97,7 +99,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:40px}
     <label>Due date</label><input id="mDue" type="date">
     <label>Notes</label><textarea id="mNotes" placeholder="Optional notes..."></textarea>
     <div id="mRateBox"><label>Rating</label><div class="rate" id="mRate"></div></div>
-    <div class="mact"><button id="mCancel">Cancel</button><button class="primary" style="font-size:16px;padding:12px 22px" id="mSave">Save</button></div>
+    <div class="mact"><button class="danger" id="mDelete" style="display:none">Delete</button><button id="mCancel">Cancel</button><button class="primary" style="font-size:16px;padding:12px 22px" id="mSave">Save</button></div>
   </div>
 </div>
 
@@ -202,6 +204,7 @@ function openModal(id){
   rating = t.rating || 0;
   drawRate();
   $("mRateBox").style.display = (id && t.done) ? "block" : "none";
+  $("mDelete").style.display = id ? "inline-block" : "none";
   $("ov").classList.add("open");
 }
 
@@ -251,6 +254,20 @@ $("addBtn").onclick = async () => {
 $("title").onkeydown = e => { if (e.key === "Enter") $("addBtn").click(); };
 $("propsBtn").onclick = () => openModal(null);
 $("mCancel").onclick = closeModal;
+
+$("mDelete").onclick = async () => {
+  if (!editId) return;
+  if (!confirm("Are you sure you want to delete this task?")) return;
+  const idToDelete = editId;
+  try {
+    await fetch("/api/tasks/" + idToDelete, { method: "DELETE" });
+  } catch (err) {
+    console.error(err);
+  }
+  tasks = tasks.filter(x => x.id !== idToDelete);
+  closeModal();
+  render();
+};
 
 $("mSave").onclick = () => {
   const p = readModal();
