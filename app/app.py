@@ -1,7 +1,32 @@
+import json
 import os
 from flask import Flask, jsonify, request, render_template, redirect, url_for
 
 from models import db, Task
+
+
+def encode_metadata(notes=None, tags=None, due=None, rating=None, current_desc=None):
+    if notes is None and tags is None and due is None and rating is None:
+        return current_desc
+    meta = {}
+    if current_desc and current_desc.startswith("{"):
+        try:
+            parsed = json.loads(current_desc)
+            if isinstance(parsed, dict):
+                meta = parsed
+        except Exception:
+            pass
+    if notes is not None:
+        meta["notes"] = notes
+    elif "notes" not in meta and current_desc and not current_desc.startswith("{"):
+        meta["notes"] = current_desc
+    if tags is not None:
+        meta["tags"] = tags
+    if due is not None:
+        meta["due"] = due
+    if rating is not None:
+        meta["rating"] = rating
+    return json.dumps(meta)
 
 
 def create_app():
@@ -31,7 +56,8 @@ def create_app():
     @app.route("/")
     def index():
         tasks = Task.query.order_by(Task.id).all()
-        return render_template("index.html", tasks=tasks, priorities=Task.VALID_PRIORITIES)
+        tasks_json = [t.to_dict() for t in tasks]
+        return render_template("index.html", tasks=tasks_json, priorities=Task.VALID_PRIORITIES)
 
     @app.route("/tasks/new", methods=["POST"])
     def create_task_ui():
@@ -68,9 +94,19 @@ def create_app():
         if priority not in Task.VALID_PRIORITIES:
             return jsonify(error="priority must be one of low, medium, high"), 400
 
+        desc = data.get("description")
+        if any(k in data for k in ("notes", "tags", "due", "rating")):
+            desc = encode_metadata(
+                notes=data.get("notes"),
+                tags=data.get("tags"),
+                due=data.get("due"),
+                rating=data.get("rating"),
+                current_desc=desc,
+            )
+
         task = Task(
             title=title,
-            description=data.get("description"),
+            description=desc,
             priority=priority,
         )
         db.session.add(task)
@@ -91,6 +127,14 @@ def create_app():
             task.title = data["title"]
         if "description" in data:
             task.description = data["description"]
+        if any(k in data for k in ("notes", "tags", "due", "rating")):
+            task.description = encode_metadata(
+                notes=data.get("notes"),
+                tags=data.get("tags"),
+                due=data.get("due"),
+                rating=data.get("rating"),
+                current_desc=task.description,
+            )
         if "priority" in data:
             if data["priority"] not in Task.VALID_PRIORITIES:
                 return jsonify(error="priority must be one of low, medium, high"), 400

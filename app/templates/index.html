@@ -1,325 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do List | Mohammed Alshamili</title>
-  <style>
-    :root {
-      --bg: #eef2f6;
-      --text: #191414;
-      --text-muted: #6a6a6a;
-
-      --clay-surface: #ffffff;
-      --clay-radius-lg: 24px;
-      --clay-radius-md: 16px;
-      --clay-radius-sm: 12px;
-
-      --clay-shadow-card:
-        8px 10px 20px rgba(166, 180, 200, 0.30),
-        -6px -6px 16px rgba(255, 255, 255, 0.75),
-        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
-        inset -1px -1px 3px rgba(166, 180, 200, 0.15);
-
-      --clay-shadow-inset:
-        inset 2px 2px 4px rgba(166, 180, 200, 0.25),
-        inset -2px -2px 4px rgba(255, 255, 255, 0.8);
-
-      --clay-shadow-btn:
-        4px 6px 14px rgba(0, 113, 227, 0.25),
-        -2px -2px 6px rgba(255, 255, 255, 0.6),
-        inset 1px 1px 2px rgba(255, 255, 255, 0.35),
-        inset -1px -1px 3px rgba(0, 0, 0, 0.12);
-
-      --accent-primary: #0071e3;
-      --accent-active: #1ed760;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Circular", Helvetica, Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
-      padding: 48px 16px;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 620px;
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-    }
-
-    header {
-      padding: 0 8px;
-    }
-
-    h1 {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-    }
-
-    .subtitle {
-      font-size: 16px;
-      color: var(--text-muted);
-      margin-top: 8px;
-    }
-
-    .form-card {
-      background: var(--clay-surface);
-      border-radius: var(--clay-radius-lg);
-      box-shadow: var(--clay-shadow-card);
-      padding: 16px;
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-
-    .input-wrapper {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      background: var(--bg);
-      border-radius: var(--clay-radius-md);
-      box-shadow: var(--clay-shadow-inset);
-      padding: 4px 16px;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      height: 48px;
-      border: none;
-      background: transparent;
-      font-size: 16px;
-      color: var(--text);
-      outline: none;
-      font-family: inherit;
-    }
-
-    input[type="text"]::placeholder {
-      color: var(--text-muted);
-    }
-
-    select {
-      height: 48px;
-      border: none;
-      background: var(--bg);
-      border-radius: var(--clay-radius-md);
-      box-shadow: var(--clay-shadow-inset);
-      padding: 0 16px;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      outline: none;
-      font-family: inherit;
-    }
-
-    button.cta-btn {
-      height: 48px;
-      padding: 0 24px;
-      background: var(--accent-primary);
-      color: #ffffff;
-      border: none;
-      border-radius: var(--clay-radius-md);
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: var(--clay-shadow-btn);
-      transition: transform 0.15s ease, filter 0.15s ease;
-      font-family: inherit;
-      white-space: nowrap;
-    }
-
-    button.cta-btn:hover {
-      filter: brightness(1.05);
-      transform: translateY(-1px);
-    }
-
-    button.cta-btn:active {
-      transform: translateY(1px);
-      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.15);
-    }
-
-    .task-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .task-card {
-      background: var(--clay-surface);
-      border-radius: var(--clay-radius-lg);
-      box-shadow: var(--clay-shadow-card);
-      padding: 20px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: transform 0.2s ease, opacity 0.2s ease;
-    }
-
-    .task-content {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      min-width: 0;
-    }
-
-    .task-title {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .priority-pill {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      padding: 6px 12px;
-      border-radius: 20px;
-      box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.6), 1px 2px 4px rgba(0, 0, 0, 0.04);
-      flex-shrink: 0;
-    }
-
-    .priority-low {
-      background: #e9f7ef;
-      color: #1e7e34;
-    }
-
-    .priority-medium {
-      background: #fff8e8;
-      color: #b7791f;
-    }
-
-    .priority-high {
-      background: #fdeeee;
-      color: #c53030;
-    }
-
-    .toggle-btn {
-      background: var(--bg);
-      border: none;
-      color: var(--text-muted);
-      height: 36px;
-      padding: 0 16px;
-      border-radius: var(--clay-radius-sm);
-      box-shadow: 1px 2px 4px rgba(166, 180, 200, 0.25), -1px -1px 3px rgba(255, 255, 255, 0.7);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      font-family: inherit;
-      flex-shrink: 0;
-    }
-
-    .toggle-btn:hover {
-      color: var(--text);
-    }
-
-    .task-card.is-done {
-      opacity: 0.65;
-    }
-
-    .task-card.is-done .task-title {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 48px 0;
-      color: var(--text-muted);
-      font-size: 16px;
-    }
-
-    footer {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 13px;
-      margin-top: 8px;
-      opacity: 0.75;
-    }
-
-    @media (max-width: 600px) {
-      .form-card {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .input-wrapper,
-      select,
-      button.cta-btn {
-        width: 100%;
-      }
-
-      .task-card {
-        padding: 16px;
-      }
-
-      .task-content {
-        gap: 10px;
-      }
-
-      .task-title {
-        overflow-wrap: anywhere;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>To-Do List</title>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--field:#eef1f5;--text:#111;--muted:#6b7280;--blue:#0071e3;--blue-d:#005bb8;--btn:#eef1f5;--sh:0 10px 30px rgba(120,135,160,.18);--red:#d92d20;--redbg:#fdecea;
+--hi:#fdecea;--hit:#c0392b;--me:#fdf1dc;--met:#b7791f;--lo:#e3f6ea;--lot:#2f855a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{--bg:#000;--card:#0a0a0a;--field:#161616;--text:#f1f3f5;--muted:#8b929c;--btn:#161616;--sh:0 0 0 1px rgba(255,255,255,.09);--redbg:#2a1210;--hi:#2a1210;--me:#2a2010;--lo:#0f2418}
+:root[data-theme="dark"]{color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:780px;margin:0 auto;padding:56px 20px 40px}
+h1{font-size:38px;margin:0 0 10px;letter-spacing:-.5px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.themewrap{position:relative;flex:none}
+.tbtn{width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:15px;background:var(--card);box-shadow:var(--sh)}
+.tbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sub{color:var(--muted);font-size:18px;margin:0 0 36px}
+.card{background:var(--card);border-radius:30px;box-shadow:var(--sh);padding:20px}
+.row{display:flex;gap:14px;align-items:center}
+input,select,textarea{font:inherit;color:var(--text);background:var(--field);border:0;border-radius:18px;padding:16px 20px;outline:0;box-shadow:inset 0 2px 6px rgba(120,135,160,.14)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+.grow{flex:1;min-width:0}
+button{font:inherit;font-weight:600;border:0;cursor:pointer;color:var(--text);background:var(--btn);border-radius:18px;padding:12px 18px;box-shadow:0 4px 12px rgba(120,135,160,.16)}
+button.primary{background:var(--blue);color:#fff;font-size:18px;padding:16px 28px;border-radius:22px;box-shadow:0 8px 18px rgba(0,113,227,.35)}
+button.primary:hover{background:var(--blue-d)}
+.search{margin-bottom:14px}
+.search input{width:100%}
+.add select{padding:16px 14px}
+.add button.props{padding:16px 18px}
+.tools{display:flex;justify-content:flex-end;gap:8px;margin:18px 4px 12px;position:relative}
+.tools button{font-size:13px;padding:8px 14px;color:var(--muted);border-radius:14px}
+.menu{position:absolute;top:100%;right:0;margin-top:6px;background:var(--card);border-radius:18px;box-shadow:var(--sh),0 0 0 1px rgba(120,135,160,.15);padding:6px;z-index:5;min-width:170px;display:none}
+.menu.open{display:block}
+.menu div{padding:9px 14px;border-radius:12px;cursor:pointer;font-size:14px}
+.menu div:hover{background:var(--field)}
+.menu div.on{color:var(--blue);font-weight:600}
+.task{display:flex;align-items:center;gap:16px;padding:18px 22px;margin-bottom:16px}
+.pri{font-size:13px;font-weight:700;letter-spacing:.5px;padding:8px 14px;border-radius:999px;text-transform:uppercase;flex:none}
+.pri.high{background:var(--hi);color:var(--hit)}.pri.medium{background:var(--me);color:var(--met)}.pri.low{background:var(--lo);color:var(--lot)}
+.body{flex:1;min-width:0;cursor:pointer}
+.title{font-size:18px}
+.done .title{text-decoration:line-through;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;font-size:13px;color:var(--muted)}
+.meta .od{color:var(--red);font-weight:600}
+.note{font-size:13px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stars{color:#f5a623;letter-spacing:1px}
+.empty{text-align:center;color:var(--muted);padding:30px 0}
+footer{text-align:center;color:var(--muted);font-size:14px;margin-top:40px}
+.ov{position:fixed;inset:0;background:rgba(15,20,30,.35);display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.ov.open{display:flex}
+.modal{width:100%;max-width:440px;display:flex;flex-direction:column;gap:12px}
+.modal h3{margin:0 0 2px;font-size:20px}
+.modal label{font-size:13px;color:var(--muted);margin-bottom:-6px}
+.modal textarea{resize:vertical;min-height:80px}
+.rate{display:flex;gap:4px;font-size:28px}
+.rate b{cursor:pointer;color:var(--field);font-weight:400}
+.rate b.on{color:#f5a623}
+.mact{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+@media(max-width:600px){.add{flex-wrap:wrap}.add .grow{flex-basis:100%}.add select,.add .props{flex:1}.add .primary{flex:1}h1{font-size:32px}.task{padding:16px}}
+</style>
 </head>
 <body>
-  <main class="container">
-    <header>
-      <h1>To-Do List</h1>
-      <p class="subtitle">Simple task management</p>
-    </header>
+<div class="wrap">
+  <div class="head">
+    <div><h1>To-Do List</h1>
+    <p class="sub">Simple task management</p></div>
+    <div class="themewrap"><button class="tbtn" id="themeBtn" aria-label="Theme"></button><div class="menu" id="tMenu"></div></div>
+  </div>
 
-    <form class="form-card" action="{{ url_for('create_task_ui') }}" method="post">
-      <div class="input-wrapper">
-        <input type="text" name="title" placeholder="New task..." required autocomplete="off">
+  <div class="card">
+    <div class="search"><input id="q" placeholder="Search tasks..."></div>
+    <div class="row add">
+      <input class="grow" id="title" placeholder="New task...">
+      <select id="pri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
+      <button class="props" id="propsBtn">Properties</button>
+      <button class="primary" id="addBtn">Add</button>
+    </div>
+  </div>
+
+  <div class="tools">
+    <button id="fBtn">Filter ▾</button>
+    <button id="sBtn">Sort ▾</button>
+    <div class="menu" id="fMenu"></div>
+    <div class="menu" id="sMenu" style="right:0"></div>
+  </div>
+
+  <div id="list"></div>
+  <footer>Mohammed Alshamili · DevOps Final Project</footer>
+</div>
+
+<div class="ov" id="ov">
+  <div class="card modal">
+    <h3 id="mTitle">Properties</h3>
+    <label>Tags (comma separated)</label><input id="mTags" placeholder="devops, docker">
+    <label>Due date</label><input id="mDue" type="date">
+    <label>Notes</label><textarea id="mNotes" placeholder="Optional notes..."></textarea>
+    <div id="mRateBox"><label>Rating</label><div class="rate" id="mRate"></div></div>
+    <div class="mact"><button id="mCancel">Cancel</button><button class="primary" style="font-size:16px;padding:12px 22px" id="mSave">Save</button></div>
+  </div>
+</div>
+
+<script>
+const TODAY = new Date().toISOString().split("T")[0];
+let tasks = {{ tasks|tojson|safe }};
+let filter = "all", sort = "recent", editId = null, draft = { tags: [], due: "", notes: "" }, rating = 0;
+const $ = id => document.getElementById(id);
+const FILTERS = [
+  ["all", "All"],
+  ["done", "Completed"],
+  ["high", "High Priority"],
+  ["medium", "Medium Priority"],
+  ["low", "Low Priority"],
+  ["due", "Has Due Date"],
+  ["overdue", "Overdue"]
+];
+const SORTS = [
+  ["recent", "Recently Added"],
+  ["oldest", "Oldest"],
+  ["priority", "Priority"],
+  ["due", "Due Date"],
+  ["title", "Title"]
+];
+const esc = s => (s || "").toString().replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const overdue = t => !t.done && t.due && t.due < TODAY;
+const fmt = d => {
+  if (!d) return "";
+  try {
+    return new Date(d + "T00:00:00").toLocaleDateString("en", { month: "short", day: "numeric" });
+  } catch (e) {
+    return d;
+  }
+};
+
+function visible(){
+  const q = $("q").value.trim().toLowerCase();
+  let r = tasks.filter(t => {
+    const text = ((t.title || "") + " " + (t.notes || "") + " " + (t.tags || []).join(" ")).toLowerCase();
+    if (q && !text.includes(q)) return false;
+    return {
+      all: 1,
+      done: t.done,
+      high: t.priority === "high",
+      medium: t.priority === "medium",
+      low: t.priority === "low",
+      due: !!t.due,
+      overdue: overdue(t)
+    }[filter];
+  });
+  const w = { high: 0, medium: 1, low: 2 };
+  r.sort((a, b) => {
+    if (sort === "recent") return b.id - a.id;
+    if (sort === "oldest") return a.id - b.id;
+    if (sort === "priority") return w[a.priority] - w[b.priority];
+    if (sort === "title") return (a.title || "").localeCompare(b.title || "");
+    return (a.due || "9999-99-99") < (b.due || "9999-99-99") ? -1 : 1;
+  });
+  return r;
+}
+
+function render(){
+  const r = visible();
+  $("list").innerHTML = r.length ? r.map(t => `
+   <div class="card task ${t.done ? "done" : ""}">
+    <span class="pri ${t.priority}">${t.priority}</span>
+    <div class="body" data-edit="${t.id}">
+      <div class="title">${esc(t.title)}</div>
+      ${t.notes ? `<div class="note">${esc(t.notes)}</div>` : ""}
+      <div class="meta">${(t.tags || []).map(g => `<span>#${esc(g)}</span>`).join("")}
+        ${t.due ? `<span class="${overdue(t) ? "od" : ""}">${overdue(t) ? "Overdue · " : "Due "}${fmt(t.due)}</span>` : ""}
+        ${t.done ? `<span>Completed</span>` : ""}
+        ${t.done && t.rating ? `<span class="stars">${"★".repeat(t.rating)}${"☆".repeat(5 - t.rating)}</span>` : ""}
       </div>
-      <select name="priority">
-        {% for p in priorities %}
-          <option value="{{ p }}" {% if p == 'medium' %}selected{% endif %}>{{ p|capitalize }}</option>
-        {% endfor %}
-      </select>
-      <button class="cta-btn" type="submit">Add</button>
-    </form>
+    </div>
+    <button data-done="${t.id}">${t.done ? "Undo" : "Done"}</button>
+   </div>`).join("") : `<div class="empty">No tasks found</div>`;
+  menu("fMenu", FILTERS, filter);
+  menu("sMenu", SORTS, sort);
+  const activeF = FILTERS.find(f => f[0] === filter);
+  $("fBtn").textContent = (filter === "all" ? "Filter" : (activeF ? activeF[1] : "Filter")) + " ▾";
+}
 
-    <ul class="task-list">
-      {% for task in tasks %}
-        <li class="task-card {{ 'is-done' if task.done else '' }}">
-          <div class="task-content">
-            <span class="priority-pill priority-{{ task.priority }}">{{ task.priority }}</span>
-            <span class="task-title">{{ task.title }}</span>
-          </div>
-          <form action="{{ url_for('toggle_task_ui', task_id=task.id) }}" method="post" style="margin: 0;">
-            <button class="toggle-btn" type="submit">{{ 'Undo' if task.done else 'Done' }}</button>
-          </form>
-        </li>
-      {% else %}
-        <li class="empty-state">No tasks pending. Clean desk, clear mind.</li>
-      {% endfor %}
-    </ul>
+function menu(id, items, cur){
+  $(id).innerHTML = items.map(i => `<div class="${i[0] === cur ? "on" : ""}" data-v="${i[0]}">${i[1]}</div>`).join("");
+}
 
-    <footer>
-      Mohammed Alshamili &middot; DevOps Final Project
-    </footer>
-  </main>
+function toggle(id){
+  const m = $(id), o = m.classList.contains("open");
+  document.querySelectorAll(".menu").forEach(x => x.classList.remove("open"));
+  if (!o) m.classList.add("open");
+}
+
+function drawRate(){
+  $("mRate").innerHTML = [1, 2, 3, 4, 5].map(n => `<b class="${n <= rating ? "on" : ""}" data-r="${n}">★</b>`).join("");
+}
+
+function openModal(id){
+  editId = id;
+  const t = id ? tasks.find(x => x.id === id) : draft;
+  $("mTitle").textContent = id ? (t.title || "Properties") : "Properties";
+  $("mTags").value = (t.tags || []).join(", ");
+  $("mDue").value = t.due || "";
+  $("mNotes").value = t.notes || "";
+  rating = t.rating || 0;
+  drawRate();
+  $("mRateBox").style.display = (id && t.done) ? "block" : "none";
+  $("ov").classList.add("open");
+}
+
+function closeModal(){
+  $("ov").classList.remove("open");
+}
+
+function readModal(){
+  return {
+    tags: $("mTags").value.split(",").map(s => s.trim().replace(/^#/, "")).filter(Boolean),
+    due: $("mDue").value,
+    notes: $("mNotes").value.trim()
+  };
+}
+
+$("addBtn").onclick = async () => {
+  const v = $("title").value.trim();
+  if (!v) return;
+  const payload = {
+    title: v,
+    priority: $("pri").value,
+    notes: draft.notes,
+    tags: draft.tags,
+    due: draft.due
+  };
+  try {
+    const res = await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      const created = await res.json();
+      tasks.push(created);
+    } else {
+      tasks.push({ id: Date.now(), ...payload, done: false, rating: 0 });
+    }
+  } catch (err) {
+    tasks.push({ id: Date.now(), ...payload, done: false, rating: 0 });
+  }
+  draft = { tags: [], due: "", notes: "" };
+  $("title").value = "";
+  $("propsBtn").textContent = "Properties";
+  render();
+};
+
+$("title").onkeydown = e => { if (e.key === "Enter") $("addBtn").click(); };
+$("propsBtn").onclick = () => openModal(null);
+$("mCancel").onclick = closeModal;
+
+$("mSave").onclick = () => {
+  const p = readModal();
+  if (editId) {
+    const t = tasks.find(x => x.id === editId);
+    if (t) {
+      Object.assign(t, p, { rating });
+      fetch("/api/tasks/" + editId, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: p.notes, tags: p.tags, due: p.due, rating })
+      }).catch(console.error);
+    }
+  } else {
+    draft = p;
+    $("propsBtn").textContent = "Properties •";
+  }
+  closeModal();
+  render();
+};
+
+$("mRate").onclick = e => {
+  const n = +e.target.dataset.r;
+  if (n) {
+    rating = rating === n ? 0 : n;
+    drawRate();
+  }
+};
+
+$("ov").onclick = e => { if (e.target === $("ov")) closeModal(); };
+$("q").oninput = render;
+$("fBtn").onclick = e => { e.stopPropagation(); toggle("fMenu"); };
+$("sBtn").onclick = e => { e.stopPropagation(); toggle("sMenu"); };
+
+$("fMenu").onclick = e => {
+  if (e.target.dataset.v) {
+    filter = e.target.dataset.v;
+    render();
+  }
+};
+
+$("sMenu").onclick = e => {
+  if (e.target.dataset.v) {
+    sort = e.target.dataset.v;
+    render();
+  }
+};
+
+document.onclick = () => document.querySelectorAll(".menu").forEach(x => x.classList.remove("open"));
+
+$("list").onclick = e => {
+  const d = e.target.closest("[data-done]"), ed = e.target.closest("[data-edit]");
+  if (d) {
+    const t = tasks.find(x => x.id == d.dataset.done);
+    if (t) {
+      t.done = !t.done;
+      if (!t.done) t.rating = 0;
+      render();
+      fetch("/api/tasks/" + t.id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ done: t.done, rating: t.rating })
+      }).catch(console.error);
+    }
+  } else if (ed) {
+    openModal(+ed.dataset.edit);
+  }
+};
+
+const THEMES = [["light", "Light"], ["dark", "Dark"]];
+const ICONS = {
+  light: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  dark: '<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>'
+};
+
+function setTheme(t, save) {
+  document.documentElement.dataset.theme = t;
+  $("themeBtn").innerHTML = ICONS[t] || ICONS.light;
+  menu("tMenu", THEMES, t);
+  if (save) {
+    try { localStorage.setItem("theme", t); } catch (e) {}
+  }
+}
+
+let savedTheme = null;
+try { savedTheme = localStorage.getItem("theme"); } catch (e) {}
+setTheme(THEMES.some(x => x[0] === savedTheme) ? savedTheme : (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+$("themeBtn").onclick = e => { e.stopPropagation(); toggle("tMenu"); };
+$("tMenu").onclick = e => { if (e.target.dataset.v) setTheme(e.target.dataset.v, true); };
+
+render();
+</script>
 </body>
 </html>
