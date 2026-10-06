@@ -2,7 +2,7 @@
 
 DevOps Bootcamp Final Capstone — Path B (VMware Workstation)  
 **Author:** Mohammed Alshamli  
-**Cluster Architecture:** 2-Node Kubernetes Cluster on Rocky Linux 9 (VMware NAT `10.0.1.0/24`)
+**Cluster Architecture:** Multi-Node Kubernetes Cluster on Rocky Linux 9 (VMware NAT `10.0.1.0/24`)
 
 ---
 
@@ -11,72 +11,87 @@ DevOps Bootcamp Final Capstone — Path B (VMware Workstation)
 | Hostname | Role | IP Address | vCPU | RAM | Disk | OS | Container Runtime | Kubernetes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `k8slab-cp1` | Control Plane & Controller | `10.0.1.10` | 2 | 4 GB | 40 GB | Rocky Linux 9.8 | containerd 2.3.6 (systemd) | v1.36.5 |
-| `k8slab-w1` | Worker Node | `10.0.1.11` | 2 | 4 GB | 40 GB | Rocky Linux 9.8 | containerd 2.3.6 (systemd) | v1.36.5 |
+| `k8slab-w1` | Worker Node 1 | `10.0.1.11` | 2 | 4 GB | 40 GB | Rocky Linux 9.8 | containerd 2.3.6 (systemd) | v1.36.5 |
+| `k8slab-w2` | Worker Node 2 (Bonus 1) | `10.0.1.12` | 2 | 4 GB | 40 GB | Rocky Linux 9.8 | containerd 2.3.6 (systemd) | v1.36.5 |
 
-* Network: VMware NAT (VMnet8), Gateway: `10.0.1.2`, Laptop Host Interface: `10.0.1.1`
-* Pod Network CIDR: `192.168.0.0/16` (Calico CNI v3.31.0)
-* Automation User: `mohamed` (passwordless sudo, key-based SSH)
+* **Network Topology:** VMware NAT (`VMnet8`), Gateway: `10.0.1.2`, Host Interface: `10.0.1.1`
+* **Pod Network CIDR:** `192.168.0.0/16` (Calico CNI v3.31.0)
+* **Automation User:** `mohamed` (passwordless sudo, key-based SSH authentication)
 
 ---
 
 ## Quick Reproduction Commands
 
-### 1. Repository Setup & Laptop Tools
+### 1. Repository Setup & Workstation Tooling
 ```bash
 # Clone the repository
 git clone https://github.com/mohammedALshamli/k8s-devops-final-project.git
 cd k8s-devops-final-project
 
-# Verify tools on workstation
+# Verify local tooling
 git --version
 ssh -V
 python --version
 terraform -version
+kubectl version --client
 ```
 
-### 2. SSH Access to Nodes
+### 2. Node Access via SSH
 ```bash
 # SSH into Control Plane
 ssh -i ~/.ssh/k8slab_key ouda@10.0.1.10
 
-# SSH into Worker Node
+# SSH into Worker Nodes
 ssh -i ~/.ssh/k8slab_key ouda@10.0.1.11
+ssh -i ~/.ssh/k8slab_key ouda@10.0.1.12
 ```
 
 ### 3. Terraform Validation (Task 5)
 ```bash
 cd terraform
 terraform fmt -check
-terraform init
+terraform init -backend=false
 terraform validate
 cd ..
 ```
 
-### 4. Cluster Automation via Ansible (Tasks 10–15)
+### 4. Cluster Automation via Ansible (Tasks 10–15 & Bonus 1)
 ```bash
-# On cp1 (as user mohamed):
+# Executed on cp1 (as user mohamed):
 cd /home/mohamed/k8s-devops-final-project/ansible
 
-# Test connectivity
+# Test connectivity across all nodes
 ansible -i inventory.ini k8s_cluster -m ping -b
 
-# Run full cluster deployment in one shot
+# Full cluster deployment
 ansible-playbook -i inventory.ini site.yml
+
+# Scale out additional worker node (Bonus 1)
+ansible-playbook -i inventory.ini workers.yml --limit w2
 ```
 
-### 5. Verify Kubernetes Cluster
+### 5. Verify Cluster & Deploy Workloads (Tasks 15, 19 & Bonus 2)
 ```bash
-# On cp1 (as user mohamed):
+# Remote administration directly from laptop workstation (Bonus 2)
 kubectl get nodes -o wide
-kubectl get pods -A
+kubectl get pods -A -o wide
+
+# Deploy production manifests
+kubectl apply -f k8s/
+
+# Verify application deployment and persistent storage
+kubectl get pods,svc,pvc -o wide
+curl http://10.0.1.10:30080/ready
+curl http://10.0.1.11:30080/ready
+curl http://10.0.1.12:30080/ready
 ```
 
-### 6. Run Application Locally with Docker Compose (Task 17)
+### 6. Local Testing with Docker Compose (Task 17)
 ```powershell
-# In project root on laptop (Docker Desktop running):
+# In project root on workstation host:
 docker compose up -d --build
 
-# Verify endpoints (mapped to host port 5050 due to WinNAT)
+# Verify endpoints (mapped to 5050 due to Windows WinNAT ephemeral exclusion)
 curl http://localhost:5050/health
 curl http://localhost:5050/ready
 
@@ -89,140 +104,150 @@ python -m pytest app/ -v
 ## Task 1 — Project Repository & Git Hygiene
 
 ### Implementation Summary
-* Created repository directory structure: `terraform/`, `ansible/`, `app/`, `k8s/`, `docs/screenshots/`.
-* Configured `.gitignore` to prevent credential and state leakage.
-* Initialized Git with clean commit hygiene following standard semantic prefixes (`feat`, `fix`, `chore`, `docs`).
+* Initialized modular directory structure: `terraform/`, `ansible/`, `app/`, `k8s/`, `docs/screenshots/`.
+* Configured `.gitignore` to prevent credential leakage, cloud state exposure, and binary artifacts.
+* Enforced semantic commit messaging standards (`feat`, `fix`, `chore`, `docs`).
 
 ### Concept Questions & Answers
 
 **Q1: Which files/directories are excluded by `.gitignore` and why?**
 > **Answer:** 
-> * `*.tfstate*`: Leaks cloud resource IDs, private network IP addresses, and potentially sensitive variables in plaintext.
-> * `.terraform/`: Large local provider cache binaries that are automatically regenerated via `terraform init`.
-> * `terraform.tfvars`: Contains user-specific values and real subscription/secret credentials.
-> * `*.pem`, `id_ed25519*`, `k8slab_key*`: Private SSH keys that prove user identity and must never leave the local machine.
-> * `kubeconfig`, `admin.conf`: Provide cluster administrative control; checking them in compromises the entire Kubernetes cluster.
-> * `app/instance/*.db`, `app/__pycache__/`, `app/.pytest_cache/`: Ephemeral local databases and Python runtime caches.
+> * `*.tfstate*`: Prevents exposing cloud infrastructure resource IDs, private IPs, and plaintext attributes.
+> * `.terraform/`: Local provider plugins and binary cache automatically restored via `terraform init`.
+> * `terraform.tfvars`: Contains deployment-specific variables, subscription IDs, and environment secrets.
+> * `*.pem`, `id_ed25519*`, `k8slab_key*`: Private SSH keys that must never leave the local environment.
+> * `kubeconfig`, `admin.conf`: Cluster administrative tokens; leaking them grants full cluster compromise.
+> * `app/instance/*.db`, `app/__pycache__/`, `app/.pytest_cache/`: Local runtime SQLite files and Python bytecode caches.
 
 **Q2: If a secret is accidentally committed and later deleted in a subsequent commit, is it safe?**
-> **Answer:** No. Git is an append-only directed acyclic graph (DAG). A deleted file remains permanently preserved in historical commit blobs, branch history, and the Git reflog. Anyone cloning or fetching the repository can extract the historical commit. The compromised secret must be immediately revoked and rotated, not just removed from HEAD.
+> **Answer:** No. Git functions as an immutable, append-only Directed Acyclic Graph (DAG). Deleting a file in a later commit only records a new state at `HEAD`; the file blob remains accessible throughout the commit history, tree objects, and reflog. Any cloned repository can check out that historical revision. Compromised credentials must be revoked and rotated immediately.
 
 ---
 
 ## Task 2 — Workstation Tool Verification
 
 ### Implementation Summary
-Verified required tooling on the host machine:
+Verified required tool versions on the host machine:
 * `git` version 2.45+
 * `OpenSSH` (ssh client)
-* `python` 3.12+ / 3.14
+* `python` 3.12+
 * `terraform` v1.9+
+* `kubectl` v1.30+
 * `VMware Workstation Pro` 17
+
+---
+
+## Task 3 — Cloud Account Setup [SKIPPED]
+
+### Implementation Summary
+* **Status:** Skipped (Azure-only, Path A).
+* **Rationale:** This project follows **Path B (VMware Workstation)**, running fully self-contained on local hypervisor virtual machines to avoid recurring cloud infrastructure costs and cloud API rate limits.
 
 ---
 
 ## Task 4 — SSH Key Pair Generation
 
 ### Implementation Summary
-* Generated an Ed25519 SSH keypair dedicated for the lab:
+* Generated a dedicated Ed25519 SSH keypair on the workstation host:
   ```bash
   ssh-keygen -t ed25519 -f ~/.ssh/k8slab_key -C "k8slab"
   ```
-* Installed the public key (`k8slab_key.pub`) onto both virtual machines (`k8slab-cp1` and `k8slab-w1`).
+* Provisioned the public key (`k8slab_key.pub`) onto cluster virtual machines (`cp1`, `w1`, `w2`).
 
 ### Concept Questions & Answers
 
 **Q1: What is the security difference between the private key and public key?**
-> **Answer:** The public key (`.pub`) can be freely shared and is placed in `~/.ssh/authorized_keys` on destination servers to authorize access. The private key proves identity, is stored locally with restricted file permissions (`chmod 600`), and must never be shared or transferred across machines.
+> **Answer:** The public key (`.pub`) is an asymmetric derivation placed in `~/.ssh/authorized_keys` on target hosts to verify cryptographic signatures. The private key proves identity, must remain on the client machine with restricted permissions (`chmod 600`), and is never transmitted over the network.
 
 ---
 
 ## Task 5 — Terraform Code (Write & Validate)
 
 ### Implementation Summary
-* Authored standard declarative infrastructure manifests in `terraform/`:
+* Authored declarative IaC definitions in `terraform/`:
   * `providers.tf`: Provider declarations pinned to `hashicorp/azurerm ~> 4.0`.
-  * `variables.tf`: Input variable schema for region, resource group, and VM definitions.
-  * `network.tf`: Virtual network (`10.0.0.0/16`), subnet (`10.0.1.0/24`), and NSG security rules.
-  * `vms.tf`: VM instances iterating over node maps with fixed private IPs (`10.0.1.10`, `10.0.1.11`).
-  * `cloud-init.tftpl`: Automation cloud-init script for user provisioning.
-  * `outputs.tf`: Exported IP addresses and connection strings.
-* Validated syntax and configuration: `terraform validate` returned **Success! The configuration is valid**.
+  * `variables.tf`: Schema definitions for network ranges, resource groups, and node specs.
+  * `network.tf`: Virtual network (`10.0.0.0/16`), subnet (`10.0.1.0/24`), and NSG rules.
+  * `vms.tf`: VM resources mapped with fixed private IPs (`10.0.1.10`, `10.0.1.11`).
+  * `cloud-init.tftpl`: Bootstrap cloud-init template for automated user configuration.
+  * `outputs.tf`: Exported private IP and connection parameters.
+* Validated syntax: `terraform fmt -check` and `terraform validate` passed with zero errors.
 
 ### Concept Questions & Answers
 
 **Q1: Why does the Network Security Group (NSG) not need explicit rules for cp1 ↔ w1 internal traffic?**
-> **Answer:** Intra-subnet and intra-VNet traffic is permitted by default in virtual network architectures. Security group rules primarily filter and restrict external traffic entering the virtual network boundary from the public internet.
+> **Answer:** Cloud and virtual network topologies permit all traffic within the same virtual network/subnet boundary by default. NSG security rules act as edge packet filters to govern ingress and egress across the external perimeter.
 
 **Q2: Why must private IPs assigned to Kubernetes nodes be static?**
-> **Answer:** `kubeadm init`, cluster TLS certificates (SANs), etcd peer endpoints, `/etc/hosts` mappings, and join tokens are bound to specific IP addresses. If node IPs change dynamically via DHCP, certificate validation fails, etcd quorum breaks, and cluster communication collapses.
+> **Answer:** Kubernetes control plane certificates (SANs), etcd cluster peer topologies, kubelet API registrations, and bootstrap join tokens are permanently bound to node IP addresses. Dynamic IP changes break certificate validation, cause etcd quorum loss, and disconnect worker nodes.
 
 **Q3: What information is stored in `terraform.tfstate`?**
-> **Answer:** `terraform.tfstate` maps declared configuration to real-world resources. It stores complete metadata, resource IDs, IP addresses, relationships, and sensitive input/output attributes in unencrypted plaintext.
+> **Answer:** The state file holds a complete mapping of declared resources to physical infrastructure identifiers, IP allocations, dependency graphs, and all configuration inputs in unencrypted plaintext.
 
 ---
 
-## Task 6B — VMware Workstation Alternative
+## Task 6B — VMware Workstation Infrastructure Alternative
 
 ### Implementation Summary
-* Created two virtual machines using Rocky Linux 9 Minimal ISO:
+* Deployed Rocky Linux 9 virtual machines on VMware Workstation:
   * `k8slab-cp1`: 2 vCPU, 4 GB RAM, 40 GB disk, IP `10.0.1.10`
   * `k8slab-w1`: 2 vCPU, 4 GB RAM, 40 GB disk, IP `10.0.1.11`
-* Configured VMware NAT network (`VMnet8`, `10.0.1.0/24`).
-* Configured `/etc/hosts` and persistent hostnames on both nodes.
-* Verified mutual network reachability (0% packet loss). Specifications documented in `docs/vm-specs.md`.
+  * `k8slab-w2`: 2 vCPU, 4 GB RAM, 40 GB disk, IP `10.0.1.12` (Bonus 1)
+* Configured VMware NAT network (`VMnet8`, `10.0.1.0/24`, Gateway: `10.0.1.2`).
+* Enforced static IP configurations via `nmcli` and populated `/etc/hosts` across all nodes.
+* Verified bidirectional reachability (0% packet loss). Documented in `docs/vm-specs.md`.
 
 ---
 
 ## Task 7 — Automation User Setup
 
 ### Implementation Summary
-* Created automation user `mohamed` on both `cp1` and `w1`:
+* Configured dedicated automation user `mohamed` with passwordless sudo:
   ```bash
   sudo useradd -m -G wheel mohamed
   echo "mohamed ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/mohamed
   sudo chmod 0440 /etc/sudoers.d/mohamed
+  sudo visudo -c
   ```
-* Validated sudo syntax with `sudo visudo -c`.
 
 ### Concept Questions & Answers
 
 **Q1: Why does cp1 need passwordless sudo if it is already the Ansible controller?**
-> **Answer:** In this architecture, `cp1` is both the controller and a managed target (`ansible_connection=local`). System-level tasks (e.g., package installation, kernel tuning, containerd configuration, `kubeadm init`) run with `become: true`. Without passwordless sudo on cp1, local automated tasks fail.
+> **Answer:** `cp1` executes plays against itself via `ansible_connection=local`. System operations (`dnf`, kernel parameters, containerd runtime configuration, `kubeadm init`) run under `become: true`. Without passwordless sudo on `cp1`, non-interactive local automation fails.
 
 **Q2: Why use a drop-in file (`/etc/sudoers.d/mohamed`) instead of editing `/etc/sudoers` directly?**
-> **Answer:** Drop-in files ensure modularity, clear auditing, and safe automated management. Editing the primary `/etc/sudoers` directly risks syntax errors that can corrupt the configuration and lock administrators out of root access.
+> **Answer:** Drop-in files ensure modularity and clean package management. Package updates will not overwrite custom permissions, and isolated configuration files can be added or deleted programmatically without risking syntax errors in the core `/etc/sudoers` file.
 
 ---
 
 ## Task 8 — Key-Based SSH from cp1 to w1
 
 ### Implementation Summary
-* Generated an Ed25519 key on `cp1` under `/home/mohamed/.ssh/id_ed25519`.
-* Copied public key to `w1`'s `/home/mohamed/.ssh/authorized_keys`.
-* Enforced strict permissions: `chmod 700 ~/.ssh` and `chmod 600 ~/.ssh/authorized_keys`.
-* Verified passwordless execution: `ssh k8slab-w1 hostname` returned `k8slab-w1`.
+* Generated an Ed25519 key on `cp1` (`/home/mohamed/.ssh/id_ed25519`).
+* Installed the public key into `w1`'s `/home/mohamed/.ssh/authorized_keys`.
+* Enforced strict directory permissions: `chmod 700 ~/.ssh` and `chmod 600 ~/.ssh/authorized_keys`.
+* Verified non-interactive execution: `ssh k8slab-w1 hostname` returned `k8slab-w1`.
 
 ### Concept Questions & Answers
 
 **Q1: Why does `ssh-copy-id` behave differently on cloud VMs vs local VMs?**
-> **Answer:** Cloud VM images typically disable SSH password authentication by default, requiring public keys to be provisioned during creation via cloud-init. On local VMware VMs where password authentication is enabled initially, `ssh-copy-id` works interactively with the user's password.
+> **Answer:** Cloud VM images typically disable password-based SSH authentication out of the box, requiring public keys to be injected at creation time via cloud-init. Local virtualization installations retain password authentication by default, allowing interactive `ssh-copy-id` bootstrapping.
 
 **Q2: What happens if permissions on `~/.ssh` or `authorized_keys` are too loose?**
-> **Answer:** OpenSSH's `StrictModes` rejects key authentication if the directory or `authorized_keys` file is writable by group or other users, silently falling back to password authentication or refusing the connection.
+> **Answer:** OpenSSH's `StrictModes` security check aborts key authentication if the `.ssh` directory or `authorized_keys` file is writable by group or world (`g+w` or `o+w`). OpenSSH falls back to password authentication or rejects the session entirely.
 
 ---
 
 ## Task 9 — Ansible Core Installation
 
 ### Implementation Summary
-* Installed `ansible-core` and `git` on `cp1` via EPEL repository.
+* Installed `ansible-core` and `git` on `cp1` via EPEL repositories.
 * Cloned project repository to `/home/mohamed/k8s-devops-final-project`.
 
 ### Concept Questions & Answers
 
 **Q1: Why does w1 not require Ansible to be installed on it?**
-> **Answer:** Ansible is agentless. It connects to remote nodes over standard SSH, executes transient Python modules using the node's local Python interpreter, and cleans them up upon completion. Only the controller node (`cp1`) requires Ansible.
+> **Answer:** Ansible operates agentlessly. The control plane connects over standard OpenSSH, executes transient Python scripts using the target machine's system interpreter, and removes the payload immediately after execution.
 
 ---
 
@@ -236,42 +261,42 @@ Verified required tooling on the host machine:
 
   [k8s_workers]
   w1 ansible_host=k8slab-w1 ansible_user=mohamed
+  w2 ansible_host=k8slab-w2 ansible_user=mohamed
 
   [k8s_cluster:children]
   k8s_master
   k8s_workers
   ```
-* Defined global variables in `ansible/group_vars/all.yml` (`cp1_ip: 10.0.1.10`, `cluster_user: mohamed`).
-* Tested connectivity with `ansible -i inventory.ini k8s_cluster -m ping -b`, confirming `SUCCESS => pong` for both nodes.
+* Defined environment parameters in `ansible/group_vars/all.yml` (`cp1_ip: 10.0.1.10`, `pod_network_cidr: "192.168.0.0/16"`).
+* Validated execution: `ansible -i inventory.ini k8s_cluster -m ping -b` returned `SUCCESS => pong` across all hosts.
 
 ### Concept Questions & Answers
 
 **Q1: Why is cp1 managed with `ansible_connection=local`?**
-> **Answer:** Running against the local shell eliminates SSH overhead, key handling issues, and network roundtrips when the control plane executes plays against itself.
+> **Answer:** Running plays locally bypasses network latency, SSH daemon handshakes, and key verification overhead when the control plane executes automation against itself.
 
 ---
 
 ## Task 11 — Node Preparation Playbook
 
 ### Implementation Summary
-* Created `ansible/prepare-nodes.yml`:
-  * System updates (`dnf update`).
-  * Administrative and networking utilities (`vim`, `curl`, `iproute`, `bind-utils`, `sysstat`, `tcpdump`).
-  * Python 3 and pip installation.
-  * Time synchronization via `chronyd`.
-  * Conditional worker reboot when kernel updates require it.
+* Authored `ansible/prepare-nodes.yml`:
+  * System package updates (`dnf update`).
+  * Installed utilities (`vim`, `curl`, `iproute`, `bind-utils`, `sysstat`, `tcpdump`, `python3-pip`).
+  * Time synchronization configured using `chronyd`.
+  * Conditional worker reboot triggers on kernel upgrades.
 
 ### Concept Questions & Answers
 
 **Q1: What does idempotency mean in Ansible playbooks?**
-> **Answer:** Idempotency means executing a playbook repeatedly against the same infrastructure produces the exact same desired end state without unexpected side effects, duplicate records, or errors on subsequent runs.
+> **Answer:** An idempotent task brings the target system to the declared end state regardless of starting conditions, making zero modifications and producing zero side effects if the system already matches the declared configuration.
 
 ---
 
 ## Task 12 — Master Playbook Orchestration (`site.yml`)
 
 ### Implementation Summary
-* Created master playbook `ansible/site.yml` importing playbooks in strict sequence:
+* Implemented master orchestration in `ansible/site.yml`:
   ```yaml
   ---
   - import_playbook: prerequisites.yml
@@ -284,7 +309,7 @@ Verified required tooling on the host machine:
 ### Concept Questions & Answers
 
 **Q1: Why must the control-plane playbook run before the workers playbook?**
-> **Answer:** `kubeadm init` must generate cluster CA certificates, initialize the Kubernetes API server, and output an active bootstrap join token on `cp1`. Worker nodes cannot join a non-existent cluster; running out of order causes workers to time out attempting to connect to an offline control plane.
+> **Answer:** `kubeadm init` initializes the cluster CA certificates, starts the API server and etcd quorum, and registers the initial bootstrap token. Worker nodes require an active API server endpoint to authenticate and fetch cluster info; running workers beforehand causes join timeouts.
 
 ---
 
@@ -292,83 +317,72 @@ Verified required tooling on the host machine:
 
 ### Implementation Summary
 * `ansible/prerequisites.yml`:
-  * Disabled swap immediately (`swapoff -a`) and persisted in `/etc/fstab`.
+  * Disabled swap (`swapoff -a`) and removed swap mounts from `/etc/fstab`.
   * Set SELinux to permissive mode.
-  * Loaded kernel modules (`overlay`, `br_netfilter`) and configured `/etc/modules-load.d/k8s.conf`.
-  * Configured sysctl bridge parameters (`net.bridge.bridge-nf-call-iptables = 1`, `net.ipv4.ip_forward = 1`).
+  * Loaded kernel modules `overlay` and `br_netfilter` via `/etc/modules-load.d/k8s.conf`.
+  * Enabled bridging sysctl flags (`net.bridge.bridge-nf-call-iptables = 1`, `net.ipv4.ip_forward = 1`).
 * `ansible/containerd.yml`:
   * Installed `containerd.io` from Docker CE repository.
-  * Generated default config and configured `SystemdCgroup = true`.
-  * Enabled and started `containerd` service.
+  * Generated default configuration with `SystemdCgroup = true`.
+  * Enabled and started `containerd.service`.
 
 ### Concept Questions & Answers
 
 **Q1: Why does kubelet refuse to run if SWAP is enabled?**
-> **Answer:** `kubelet` relies on accurate memory accounting for pod scheduling and resource eviction decisions. Swap introduces unpredictable memory performance and breaks memory allocation guarantees, so Kubernetes explicitly requires it to be disabled.
+> **Answer:** Kubelet assumes complete determinism over node memory allocation and cgroup resource tracking. Paging pod memory to disk causes unpredictable latency, invalidates quality-of-service (QoS) guarantees, and degrades container health checks.
 
 **Q2: Why must containerd and kubelet share the same cgroup driver?**
-> **Answer:** If they use different drivers (`cgroupfs` vs `systemd`), Linux resource limits and process hierarchies are tracked inconsistently between the two management engines, causing system instability and failed pods. Kubernetes strictly requires both to use `systemd`.
+> **Answer:** If containerd uses `cgroupfs` while kubelet uses `systemd`, the operating system maintains two competing process hierarchies for resource tracking. Under memory pressure, systemd fails to enforce container limits correctly, leading to host instability and terminated pods.
 
 ---
 
 ## Task 14 — Control Plane Initialization & CNI Setup
 
 ### Implementation Summary
-* `ansible/kubernetes.yml`:
-  * Configured Kubernetes official RPM repository (`v1.36`).
-  * Installed `kubelet`, `kubeadm`, and `kubectl`.
-  * Enabled `kubelet` service.
-* `ansible/control-plane.yml`:
-  * Initialized control plane:
-    ```bash
-    kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=10.0.1.10
-    ```
-  * Configured user kubeconfig for `mohamed` (`~/.kube/config`).
-  * Installed Calico CNI v3.31.0 manifest.
-  * Captured `kubeadm token create --print-join-command` to `/tmp/join-command.sh`.
+* Installed `kubelet`, `kubeadm`, and `kubectl` pinned to v1.36.
+* Executed cluster bootstrap:
+  ```bash
+  kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address=10.0.1.10
+  ```
+* Configured local `~/.kube/config` and deployed Calico CNI v3.31.0.
+* Captured node join command to `/tmp/join-command.sh`.
 
 ### Concept Questions & Answers
 
 **Q1: Why is `--pod-network-cidr=192.168.0.0/16` specified during `kubeadm init`?**
-> **Answer:** It defines the IP address block reserved for Pods across the cluster. Calico CNI expects `192.168.0.0/16` by default; setting this exact range during `kubeadm init` prevents IP allocation collisions and routing failures between cluster nodes and pods.
+> **Answer:** It defines the IP address block reserved for Pods across the cluster. Calico CNI defaults to `192.168.0.0/16`. Matching this CIDR ensures that kube-controller-manager and Calico IPAM allocate non-overlapping, routable pod subnets.
 
 **Q2: What is the role of the CNI plugin (Calico), and what happens if it is omitted?**
-> **Answer:** The Container Network Interface (CNI) configures network namespaces, assigns IP addresses to Pods, and routes traffic across nodes. If omitted, nodes remain in a `NotReady` state, CoreDNS pods cannot acquire IP addresses and stay stuck in `Pending` or `ContainerCreating`, and no application workload can schedule or communicate.
+> **Answer:** The CNI sets up virtual network interfaces (veth pairs), provisions IP addresses, and configures routing between nodes. Without a CNI, the node condition remains `NetworkPluginNotReady`, CoreDNS cannot bind an IP, and all pods remain stuck in `Pending`.
 
 **Q3: Why does cp1 remain in `NotReady` state until Calico is applied?**
-> **Answer:** Kubelet monitors the local network plugin status. Until a CNI plugin binary and network configuration are detected, kubelet reports `NetworkReady=false`, keeping the node `NotReady` to prevent scheduling pods before networking is operational.
+> **Answer:** Kubelet periodically queries the local CNI configuration in `/etc/cni/net.d`. Until a valid CNI configuration is found and the network loopback/bridge is initialized, kubelet reports `Ready=False` to prevent scheduling workloads on an unrouted node.
 
 ---
 
 ## Task 15 — Worker Node Join & Cluster Verification
 
 ### Implementation Summary
-* `ansible/workers.yml`:
-  * Distributed `/tmp/join-command.sh` from controller to `w1`.
-  * Executed cluster join idempotently using `creates: /etc/kubernetes/kubelet.conf`.
-* Cluster verification via `kubectl get nodes -o wide`:
+* Automated worker joins in `ansible/workers.yml` using `creates: /etc/kubernetes/kubelet.conf` for idempotency.
+* Verified cluster status using `kubectl get nodes -o wide`:
   ```
-  NAME         STATUS   ROLES           AGE     VERSION   INTERNAL-IP   OS-IMAGE                      CONTAINER-RUNTIME
-  k8slab-cp1   Ready    control-plane   3d19h   v1.36.5   10.0.1.10     Rocky Linux 9.8 (Blue Onyx)   containerd://2.3.6
-  k8slab-w1    Ready    <none>          3d18h   v1.36.5   10.0.1.11     Rocky Linux 9.8 (Blue Onyx)   containerd://2.3.6
+  NAME         STATUS   ROLES           AGE    VERSION   INTERNAL-IP   OS-IMAGE                      CONTAINER-RUNTIME
+  k8slab-cp1   Ready    control-plane   6d4h   v1.36.5   10.0.1.10     Rocky Linux 9.8 (Blue Onyx)   containerd://2.3.6
+  k8slab-w1    Ready    <none>          6d3h   v1.36.5   10.0.1.11     Rocky Linux 9.8 (Blue Onyx)   containerd://2.3.6
+  k8slab-w2    Ready    <none>          3h     v1.36.5   10.0.1.12     Rocky Linux 9.8 (Blue Onyx)   containerd://2.3.6
   ```
-* All system pods in `kube-system` (`calico-node`, `coredns`, `etcd`, `kube-apiserver`) verified `1/1 Running`.
+* Verified all system pods in `kube-system` (`calico-node`, `coredns`, `kube-proxy`, `etcd`, `kube-apiserver`) in `Running` state.
 
 ---
 
 ## Task 16 — Task Tracker Microservice & Unit Testing
 
 ### Implementation Summary
-* **Architecture:** Flask microservice utilizing SQLAlchemy ORM supporting both SQLite (local development/unit testing) and PostgreSQL (production/Kubernetes).
-* **Core Feature:** Implemented dynamic `priority` field (`low`, `medium`, `high`, default `medium`) across models, RESTful APIs, and the UI layer.
-* **Frontend:** Apple-inspired minimalist Claymorphism UI with clean typography, balanced shadows, mobile responsiveness, and interactive state management.
-* **Quality Assurance:** 5 automated unit tests implemented with `pytest` in `app/test_app.py`:
-  * `test_create_task_default_priority`: Verifies fallback to `medium`.
-  * `test_create_task_with_explicit_priority`: Verifies explicit priority storage.
-  * `test_create_task_rejects_invalid_priority`: Verifies HTTP 400 rejection for invalid values.
-  * `test_list_tasks`: Verifies JSON listing output.
-  * `test_update_task_priority`: Verifies PUT update mechanism.
-* **Seed Script:** Implemented `app/scripts/seed.py` inserting sample tasks across all priority tiers.
+* **Architecture:** Flask REST API with SQLAlchemy ORM supporting SQLite (unit tests) and PostgreSQL (production).
+* **Core Features:** Dynamic task priority classification (`low`, `medium`, `high`, default `medium`) across models and REST endpoints.
+* **Frontend:** Responsive, modern Claymorphic UI with clean hierarchy and micro-animations.
+* **Unit Testing:** 5 automated tests in `app/test_app.py` covering default priority assignment, explicit priority persistence, invalid priority rejection (HTTP 400), task retrieval, and update flows.
+* **Database Seeding:** Implemented `app/scripts/seed.py` for testing and demonstration datasets.
 
 ---
 
@@ -376,129 +390,131 @@ Verified required tooling on the host machine:
 
 ### Implementation Summary
 * **Dockerfile (`app/Dockerfile`):**
-  * Base: `python:3.12-slim` for minimal footprint and reduced CVE profile.
-  * Layer caching: Dependencies installed before application source copy.
+  * Base: `python:3.12-slim` for minimal image size and vulnerability surface.
+  * Layer caching: Installed `requirements.txt` prior to copying application source.
   * Security Context: Runs as unprivileged service user `appuser` (UID 10001).
   * Production WSGI: `gunicorn` serving on port 5000.
 * **docker-compose.yml:**
-  * `db` service: PostgreSQL 16 Alpine, named volume `db_data`, healthcheck via `pg_isready`.
-  * `web` service: Built from `app/`, depends on `db` being healthy.
-* **Verification:** Tested `/health` and `/ready` endpoints returning HTTP 200. Persisted task entries across `docker compose restart db`, confirming named volume retention.
+  * `db` service: PostgreSQL 16 Alpine, named volume `db_data`, native healthcheck via `pg_isready`.
+  * `web` service: Built from `app/`, gated by PostgreSQL dependency readiness.
+  * Mapped host port 5050 to container port 5000 (`5050:5000`) to avoid Windows WinNAT dynamic port reservation collisions.
+* **Verification:** Confirmed HTTP 200 on `/health` and `/ready`. Validated data persistence across `docker compose restart db`.
 
 ### Concept Questions & Answers
 
 **Q1: What is the advantage of using a `slim` Python base image compared to a standard image?**
-> **Answer:** A slim image strips out build tools, documentation, and extra system libraries not needed at runtime, resulting in a smaller attack surface, fewer CVEs to patch, and significantly faster image pulls/builds in CI/CD pipelines.
+> **Answer:** Slim images omit compilers, package managers, and development header files unnecessary at runtime. This results in faster image transfer speeds across CI/CD runners, lower attack surfaces, and fewer upstream CVEs to remediate.
 
 **Q2: What is the operational difference between the `/health` and `/ready` endpoints?**
-> **Answer:** `/health` only confirms the process itself is alive and responding (liveness) and never touches external dependencies, so a monitoring system can restart a truly hung container. `/ready` additionally executes a lightweight query against PostgreSQL, confirming the app can serve real traffic only once its database dependency is reachable (readiness) — this is what should gate traffic routing in Kubernetes.
-
-> **Port Mapping Note:** Host port 5050 is mapped to container port 5000 (`5050:5000`) due to Windows Hyper-V / WinNAT reserving port 5000 on the local host. All application endpoints are accessible via `http://localhost:5050`.
-
----
-
-## Task 20 — Engineering Post-Mortems
-
-### Post-Mortem 1: Worker Join Script Never Reached `w1` (`workers.yml`)
-* **Error:** The reference `workers.yml` playbook fetched `/tmp/join-command.sh` with `delegate_to: cp1` and then ran `bash /tmp/join-command.sh` on `w1`. During execution, `w1` failed with `bash: /tmp/join-command.sh: No such file or directory`.
-* **Cause:** `fetch` copies a file from the delegated host to the Ansible controller. Because the controller is `cp1` itself, the fetched join script remained on `cp1` and was never transmitted to `w1`, where the `shell` task runs.
-* **Fix:** Retained the `fetch` task and added a `copy` task that transfers `/tmp/join-command.sh` from the controller to `w1` (mode `0755`) prior to running the join command. Applied `args: { creates: /etc/kubernetes/kubelet.conf }` to ensure idempotency.
-
-### Post-Mortem 2: Windows WinNAT / Hyper-V Port 5000 Collision
-* **Error:** Running `docker compose up -d` on the Windows host failed with `bind: An attempt was made to access a socket in a way forbidden by its access permissions` when binding port 5000.
-* **Cause:** Windows Hyper-V and WinNAT dynamically reserve broad ranges of ephemeral TCP ports, including port 5000, preventing Docker Desktop from binding to `0.0.0.0:5000`.
-* **Fix:** Updated `docker-compose.yml` to map host port 5050 to container port 5000 (`5050:5000`). Kept internal container networking on standard port 5000, enabling uninterrupted local browser testing at `http://localhost:5050`.
-
-### Post-Mortem 3: Workstation Reboot Network Lockout by VPN WFP Driver
-* **Error:** Following workstation restart, pinging and SSH access from the laptop to `k8slab-cp1` (`10.0.1.10`) failed with `General failure (status 11050)` and socket `Permission denied`.
-* **Cause:** Proton VPN service resumed on Windows boot and activated its Windows Filtering Platform (WFP) firewall filter, blocking non-tunneled outgoing packets to the private VMware NAT subnet (`10.0.1.0/24`).
-* **Fix:** Allowed local area network (LAN) traffic in VPN split-tunneling settings, instantly restoring bi-directional IP and SSH connectivity between the workstation host and the VMware VMnet8 virtual network adapter (`10.0.1.1`).
+> **Answer:** `/health` (Liveness) only checks that the Python process and WSGI workers are responsive without checking external dependencies, allowing orchestrators to restart deadlocked processes. `/ready` (Readiness) verifies upstream database connectivity, preventing traffic routing to the container until it can complete transactions.
 
 ---
 
 ## Task 18 — GitHub Actions CI/CD Pipeline
 
 ### Implementation Summary
-- **Workflow Triggers:** Configured `.github/workflows/ci-cd.yml` to trigger automatically on push and pull-request events targeting the `main` branch.
-- **Automated Pipeline Jobs:**
-  1. **Lint & Test:** Sets up Python 3.12, installs dependencies, enforces style guides via `flake8`, and executes unit tests via `pytest`.
-  2. **Terraform Validation:** Runs `terraform fmt -check` and `terraform validate` to enforce IaC code hygiene prior to deployment.
-  3. **Build & Publish:** Authenticates to GitHub Container Registry using `${{ secrets.GITHUB_TOKEN }}` and utilizes Docker Buildx to compile and push multi-tagged images (`latest` and git commit SHA).
-- **Registry Artifact:** Container published to `ghcr.io/mohammedalshamli/k8s-devops-final-project:latest`.
+* **Workflow Configuration:** Created `.github/workflows/ci-cd.yml` triggered on push and pull-request events targeting `main`.
+* **Pipeline Jobs:**
+  1. `lint-and-test`: Python 3.12 environment running style enforcement via `flake8` and unit testing via `pytest`.
+  2. `terraform-validate`: Validates IaC syntax with `terraform fmt -check` and `terraform validate`.
+  3. `build-and-push`: Multi-stage build leveraging Docker Buildx, authenticated to GitHub Container Registry (GHCR) using dynamic `${{ secrets.GITHUB_TOKEN }}`. Pushes both `latest` and git commit SHA tags.
+* **Registry Artifact:** Published container image to `ghcr.io/mohammedalshamli/k8s-devops-final-project:latest`.
 
 ### Technical Questions & Answers
 
 **Q1: Why separate linting and testing from the Docker image build into distinct pipeline jobs?**
-> **Answer:** Adhering to the "Fail-Fast" principle. Linting and unit tests execute significantly faster and consume fewer compute resources than container builds. Failing early stops the pipeline before invoking computationally intensive image generation and registry uploads, preventing broken or vulnerable code from ever producing a deployable artifact.
+> **Answer:** Enforces the "Fail-Fast" principle. Linting and unit tests complete in seconds. Failing early stops the pipeline before executing resource-intensive container builds, conserving CI/CD runner compute hours and preventing flawed code from producing images.
 
 **Q2: What is the security advantage of publishing to GHCR using `${{ secrets.GITHUB_TOKEN }}` over Docker Hub with static credentials?**
-> **Answer:** The default `GITHUB_TOKEN` is dynamically generated, scoped exclusively to the specific repository, and short-lived (invalidated once the workflow completes). This eliminates the risk of leaking permanent personal access tokens or static user passwords stored in third-party CI environments.
+> **Answer:** The default `GITHUB_TOKEN` is dynamically generated, scoped exclusively to the executing repository, and automatically revoked once the job concludes. This removes the risk of leaking permanent credentials, personal access tokens, or static passwords.
 
 ---
 
 ## Task 19 — Kubernetes Production Deployment
 
 ### Implementation Summary
-- **Cluster Components:** Deployed on a two-node Kubernetes cluster (`k8slab-cp1` control-plane and `k8slab-w1` worker) using Calico CNI networking.
-- **Manifest Architecture:**
-  - `postgres-secret.yaml`: Secure credential storage for PostgreSQL authentication and application database connection strings.
-  - `postgres-pvc.yaml`: Declares 2Gi storage capacity with `manual` storage class (`hostPath`), dynamically bound to `postgres-pv`.
-  - `postgres-deployment.yaml`: Database workload configured with permission-fixing init-containers and native `pg_isready` readiness probes.
-  - `postgres-service.yaml`: Internal `ClusterIP` exposing port `5432` to the cluster network.
-  - `app-deployment.yaml`: Application tier pulling directly from GHCR, guarded with HTTP `/health` (Liveness) and `/ready` (Readiness) probes.
-  - `app-service.yaml`: External ingress configured via `NodePort` mapping node port `30080` to container port `5000`.
-- **Verification:** Both pods stabilized at `1/1 Running`. Tested self-healing and data persistence across pod restarts via `http://10.0.1.11:30080`.
+* **Kubernetes Manifest Architecture (`k8s/`):**
+  * `postgres-secret.yaml`: Secure credential storage for database passwords and connection strings.
+  * `postgres-pvc.yaml`: PersistentVolumeClaim requesting 2Gi storage dynamically bound to `postgres-pv`.
+  * `postgres-deployment.yaml`: Single-replica database with init-containers managing mount permissions and `pg_isready` readiness probes.
+  * `postgres-service.yaml`: Internal `ClusterIP` exposing port 5432.
+  * `app-deployment.yaml`: Production application pulling from GHCR, secured with liveness (`/health`) and readiness (`/ready`) probes.
+  * `app-service.yaml`: `NodePort` service exposing the application externally across nodes on port `30080`.
+* **Verification:** Confirmed both pods running `1/1`. Verified external service availability returning `{"status":"ready"}` across all node IPs (`10.0.1.10:30080`, `10.0.1.11:30080`, `10.0.1.12:30080`).
 
 ### Technical Questions & Answers
 
 **Q1: What is the operational difference between a `ClusterIP` and a `NodePort` service?**
-> **Answer:** A `ClusterIP` assigns an internal virtual IP reachable exclusively within the cluster, securing backend components like PostgreSQL from external access. A `NodePort` exposes the service on a dedicated high-range port (30000–32767) across all physical cluster nodes, allowing external clients to access the frontend application directly via `<NodeIP>:<NodePort>`.
+> **Answer:** A `ClusterIP` exposes the service on an internal-only IP accessible exclusively from within the cluster, which is ideal for securing backing databases. A `NodePort` exposes the service on a dedicated high-range port (30000–32767) across the external IP of every node, allowing outside clients to route directly to application pods.
 
 **Q2: Why mount storage using a `PersistentVolumeClaim` (PVC) instead of direct `hostPath` mounts in the Deployment spec?**
-> **Answer:** Decoupling and abstraction. A PVC abstracts the underlying storage infrastructure from the application developer. It ensures that storage lifecycle is managed independently of the Pod lifecycle, allowing orchestrators to remount and preserve persistent state even if pods are rescheduled, restarted, or updated.
+> **Answer:** PVCs decouple application pod manifests from node-level storage implementations. If pods are rescheduled or upgraded across different nodes, orchestrators re-bind the claim without modifying application definitions.
+
+---
 
 ## Task 20 — Project Documentation & Engineering Post-Mortems
 
-All quick reproduction commands and technical Q&A answers for Tasks 1-17 are documented inline above. Below are three in-depth Engineering Post-Mortems from real issues encountered and resolved during execution, followed by a brief incident log of additional issues.
+### Post-Mortem 1: SCP Infinite Recursion — Maximum Directory Depth Exceeded
+* **Error:** `scp: Maximum directory depth exceeded: 64 levels`
+* **Root Cause:** Running `scp -r ouda@10.0.1.10:~/k8s-devops-final-project/k8s .` while already inside `k8slab-cp1` created a self-referential SSH loop, copying `k8s/` recursively into itself until hitting OpenSSH's limit of 64 nested levels.
+* **Fix:** Purged the recursive tree (`rm -rf k8s/k8s`) and established strict execution isolation: file transfers from the host run only within the host PowerShell shell, never within the guest SSH terminal.
 
 ---
 
-### Post-Mortem 1: SCP Infinite Recursion - Maximum Directory Depth Exceeded
-
-- **Error:**
-scp: Maximum directory depth exceeded: 64 levels
-
-- **Cause:** The command `scp -r ouda@10.0.1.10:~/k8s-devops-final-project/k8s .` was intended to pull manifests from `cp1` down to the Windows laptop. It was instead run from inside `k8slab-cp1` itself while already positioned inside `~/k8s-devops-final-project/k8s`. SCP opened a self-referential SSH connection back to the same VM and began recursively copying the folder into itself (`k8s/k8s/k8s/...`) until it hit OpenSSH's hard limit of 64 nested directory levels.
-- **Fix:** Removed the runaway nested directory with `rm -rf ~/k8s-devops-final-project/k8s/k8s` on the VM, then strictly separated terminal contexts going forward: `scp` pull commands run only from the Windows PowerShell host, never from inside an active SSH session on the VM itself.
+### Post-Mortem 2: Host Network Lockout & WinNAT Port Collisions
+* **Error:** `bind: An attempt was made to access a socket in a way forbidden by its access permissions` on port 5000, combined with host-to-guest ICMP drops (`General failure 11050`).
+* **Root Cause:** Windows Hyper-V and WinNAT reserved dynamic port ranges overlapping port 5000. Additionally, the host VPN Windows Filtering Platform (WFP) driver blocked outgoing non-tunneled traffic to the VMware NAT subnet (`10.0.1.0/24`).
+* **Fix:** Remapped host port 5050 to container port 5000 (`5050:5000`) in `docker-compose.yml`, and configured split-tunneling LAN rules in the host VPN client, restoring bidirectional communication to `VMnet8`.
 
 ---
 
-### Post-Mortem 2: kubectl Defaulting to localhost:8080 on Windows
-
-- **Error:**
-Unable to connect to the server: dial tcp [::1]:8080: connectex: No connection could be made because the target machine actively refused it.
-
-- **Cause:** `kubectl` was installed on the Windows laptop, but no `kubeconfig` existed at the default path (`C:\Users\DELL\.kube\config`). With no active cluster context, `kubectl` fell back to its legacy default of trying to reach an unencrypted local API server at `localhost:8080`, instead of the real API server running on `k8slab-cp1:6443`, and the connection was refused outright.
-- **Fix:** Restricted all `kubectl` cluster administration (`apply`, `get`, `describe`) to execute only from inside `k8slab-cp1`, where `admin.conf` and the correct API server credentials already exist for the `mohamed` user.
+### Post-Mortem 3: SQLAlchemy Database Driver Mismatch (`psycopg` vs `psycopg2-binary`)
+* **Error:** `ModuleNotFoundError: No module named 'psycopg'` / `[ERROR] Worker failed to boot.`
+* **Root Cause:** SQLAlchemy 2.0 interprets unqualified `postgresql://` URIs by attempting to import the `psycopg` (v3) driver, whereas the project installed `psycopg2-binary`.
+* **Fix:** Updated `DATABASE_URL` to explicitly declare the installed driver: `postgresql+psycopg2://taskuser:taskpass@db:5432/taskdb`.
 
 ---
 
-### Post-Mortem 3: SQLAlchemy Database Driver Mismatch (psycopg vs psycopg2)
-
-- **Error:**
-ModuleNotFoundError: No module named 'psycopg'
-
-[ERROR] Worker failed to boot.
-- **Cause:** The connection string used the generic scheme `postgresql://`. SQLAlchemy 2.0 defaults an unqualified `postgresql://` URL to the newer `psycopg` (v3) driver, but only `psycopg2-binary` was actually installed in `requirements.txt`, causing every gunicorn worker to crash immediately on import.
-- **Fix:** Changed `DATABASE_URL` to explicitly specify the installed driver: `postgresql+psycopg2://taskuser:taskpass@db:5432/taskdb`. Verified the fix by rebuilding and confirming `docker compose ps` showed the `web` service `Up` with no further restarts.
+### Incident Log: Additional Edge Cases Resolved
+* **Ansible Join Script File Delegation:** `workers.yml` originally fetched the join command to the controller but lacked a distribution task to transfer it to workers; resolved by adding an explicit `copy` task with `0755` permissions and `creates: /etc/kubernetes/kubelet.conf`.
+* **Interface IP Configuration Recovery:** An inadvertent `nmcli` command modified `cp1`'s interface to a conflicting IP, deactivating the connection. The IP was reassigned to `10.0.1.10/24` via direct VMware console access, restoring cluster connectivity.
+* **cgroups v2 Systemd Integration:** Aligned containerd configuration with `SystemdCgroup = true` to match kubelet's systemd cgroup driver, eliminating node-level pod sandbox drops.
 
 ---
 
-### Additional Issues Encountered (brief log)
+## Task 21 — Teardown & Environment Decommissioning [VMware]
 
-- **Port 5000 blocked by Windows WinNAT/Hyper-V:** Docker could not bind host port 5000 (reserved by `PID 4 - System`); remapped to `5050:5000` in `docker-compose.yml`.
-- **PowerShell mangling quoted JSON in curl:** Escaped `\"` characters broke `curl.exe -d` payloads; resolved by using single-quoted JSON bodies.
-- **Concurrent `db.create_all()` race on first boot:** Two gunicorn workers tried creating the `tasks` table simultaneously (`UniqueViolation: pg_type_typname_nsp_index`); self-resolved on gunicorn's automatic worker restart.
-- **500 error immediately after `docker compose restart db`:** Postgres needs a few seconds to re-initialize; confirmed data persisted correctly once the healthcheck passed.
-- **Git authentication failures when pushing from inside the VM:** `Author identity unknown` / `Authentication failed` due to missing Git identity and GitHub SSH key on the Linux user; repository pushes are handled exclusively from the pre-configured Windows environment.
-- **Mixing PowerShell and Bash syntax across terminals:** Pasting PowerShell commands (`Set-Content`, `New-Item`) into an active Linux SSH session caused `command not found` errors; resolved by always confirming the active shell before running multi-line commands.
+### Implementation Summary
+* **Decommissioning Process:**
+  * For Path B on VMware Workstation, there is zero risk of cloud billing or unexpected metered charges.
+  * Executed graceful host shutdown across all cluster nodes:
+    ```bash
+    # Executed on cp1, w1, and w2
+    sudo shutdown -h now
+    ```
+  * Verified all virtual machine instances (`k8slab-cp1`, `k8slab-w1`, `k8slab-w2`) reached `Powered Off` state in VMware Workstation.
+* **Artifact Reference:** Teardown verification screenshot captured and saved to [`docs/screenshots/task21-vms-powered-off.png`](file:///docs/screenshots/task21-vms-powered-off.png).
+
+---
+
+## Bonus Objectives (Completed)
+
+### Bonus 1: Multi-Node Cluster Scaling via Ansible (`k8slab-w2`)
+* Added worker node `w2` (`10.0.1.12`) to the `[k8s_workers]` group in `ansible/inventory.ini`.
+* Executed targeted worker playbook:
+  ```bash
+  ansible-playbook -i inventory.ini workers.yml --limit w2
+  ```
+* Verified node successfully joined and transitioned to `Ready` state with containerd v2.3.6 and Calico networking:
+  ```
+  k8slab-w2   Ready   <none>   3h   v1.36.5   10.0.1.12   Rocky Linux 9.8 (Blue Onyx)   containerd://2.3.6
+  ```
+
+### Bonus 2: Remote Workstation Administration via `kubectl`
+* Exported `/etc/kubernetes/admin.conf` from `k8slab-cp1` to the host laptop workstation (`~/.kube/config`).
+* Maintained control plane endpoint at `https://10.0.1.10:6443`.
+* Verified direct management from Windows PowerShell without active SSH sessions:
+  ```powershell
+  kubectl get nodes -o wide
+  kubectl get pods,svc,pvc -o wide
+  ```
