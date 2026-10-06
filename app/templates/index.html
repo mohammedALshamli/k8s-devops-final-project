@@ -28,8 +28,6 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
 button{font:inherit;font-weight:600;border:0;cursor:pointer;color:var(--text);background:var(--btn);border-radius:18px;padding:12px 18px;box-shadow:0 4px 12px rgba(120,135,160,.16)}
 button.primary{background:var(--blue);color:#fff;font-size:18px;padding:16px 28px;border-radius:22px;box-shadow:0 8px 18px rgba(0,113,227,.35)}
 button.primary:hover{background:var(--blue-d)}
-.search{margin-bottom:14px}
-.search input{width:100%}
 .add select{padding:16px 14px}
 .add button.props{padding:16px 18px}
 .tools{display:flex;justify-content:flex-end;gap:8px;margin:18px 4px 12px;position:relative}
@@ -73,7 +71,6 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:40px}
   </div>
 
   <div class="card">
-    <div class="search"><input id="q" placeholder="Search tasks..."></div>
     <div class="row add">
       <input class="grow" id="title" placeholder="New task...">
       <select id="pri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
@@ -137,10 +134,7 @@ const fmt = d => {
 };
 
 function visible(){
-  const q = $("q").value.trim().toLowerCase();
   let r = tasks.filter(t => {
-    const text = ((t.title || "") + " " + (t.notes || "") + " " + (t.tags || []).join(" ")).toLowerCase();
-    if (q && !text.includes(q)) return false;
     return {
       all: 1,
       done: t.done,
@@ -287,7 +281,6 @@ $("mRate").onclick = e => {
 };
 
 $("ov").onclick = e => { if (e.target === $("ov")) closeModal(); };
-$("q").oninput = render;
 $("fBtn").onclick = e => { e.stopPropagation(); toggle("fMenu"); };
 $("sBtn").onclick = e => { e.stopPropagation(); toggle("sMenu"); };
 
