@@ -442,6 +442,11 @@ Verified required tool versions on the host machine:
   * `app-service.yaml`: `NodePort` service exposing the application externally across nodes on port `30080`.
 * **Verification:** Confirmed both pods running `1/1`. Verified external service availability returning `{"status":"ready"}` across all node IPs (`10.0.1.10:30080`, `10.0.1.11:30080`, `10.0.1.12:30080`).
 
+### Security Note: Demo Credentials
+1. The credentials in `k8s/postgres-secret.yaml` (`taskuser`/`taskpass`) are throwaway demo values for this lab only, never used anywhere real.
+2. In production, database secrets must never be committed to Git. They would be managed with External Secrets Operator + a secret store (e.g., HashiCorp Vault or AWS Secrets Manager) or Sealed Secrets, so the repo only stores references, not values.
+3. If a real secret were committed by mistake, it must be revoked and rotated immediately, because it remains in Git history (this ties into the Task 1 Q2 answer).
+
 ### Technical Questions & Answers
 
 **Q1: What is the operational difference between a `ClusterIP` and a `NodePort` service?**
