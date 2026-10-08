@@ -498,7 +498,7 @@ Verified required tool versions on the host machine:
     sudo shutdown -h now
     ```
   * Verified all virtual machine instances (`k8slab-cp1`, `k8slab-w1`, `k8slab-w2`) reached `Powered Off` state in VMware Workstation.
-* **Artifact Reference:** Teardown verification screenshot captured and saved to [`docs/screenshots/task21-vms-powered-off.png`](file:///docs/screenshots/task21-vms-powered-off.png).
+* **Artifact Reference:** Teardown verification screenshot captured and saved to [`docs/screenshots/task21-vms-powered-off.png`](docs/screenshots/task21-vms-powered-off.png).
 
 ---
 
@@ -523,3 +523,13 @@ Verified required tool versions on the host machine:
   kubectl get nodes -o wide
   kubectl get pods,svc,pvc -o wide
   ```
+
+---
+
+## Known Limitations & Production Roadmap
+
+- High Availability: single control-plane and single worker node here; production would need 3 control-plane nodes behind a load balancer and multiple workers across failure domains.
+- TLS: the application and Kubernetes API are currently accessed over plain HTTP/NodePort; production would terminate TLS via an Ingress controller with cert-manager.
+- Secrets management: plaintext Kubernetes Secrets here; production would use Vault or a cloud secrets manager with External Secrets Operator.
+- Backups: no automated PostgreSQL backup/restore strategy currently exists; production would need scheduled pg_dump or a volume-snapshot based backup with a tested RPO/RTO.
+- Observability: no metrics or logging stack currently deployed; production would add Prometheus, Grafana, and centralized logging (e.g. Loki) with alerting.
