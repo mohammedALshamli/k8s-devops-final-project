@@ -49,4 +49,4 @@
       copy:
         content: "{{ join_command.stdout }}"
         dest: /tmp/join-command.sh
-        mode: "0644"
+        mode: "0600"

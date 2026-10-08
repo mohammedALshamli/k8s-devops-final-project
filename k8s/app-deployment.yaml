@@ -16,6 +16,9 @@ spec:
         - name: task-tracker
           image: ghcr.io/mohammedalshamli/k8s-devops-final-project:latest
           imagePullPolicy: Always
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
           ports:
             - containerPort: 5000
           env:
@@ -24,6 +27,13 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: DATABASE_URL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
           readinessProbe:
             httpGet:
               path: /ready

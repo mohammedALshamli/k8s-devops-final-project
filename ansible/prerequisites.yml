@@ -2,9 +2,15 @@
 - hosts: k8s_cluster
   become: true
   tasks:
+    - name: Check current swap status
+      command: swapon --show
+      register: swap_status
+      changed_when: false
+
     - name: Disable swap immediately
       command: swapoff -a
-      changed_when: true
+      when: swap_status.stdout != ""
+      changed_when: swap_status.stdout != ""
 
     - name: Remove swap entries from /etc/fstab
       replace:
@@ -23,13 +29,25 @@
         regexp: '^SELINUX=enforcing'
         replace: 'SELINUX=permissive'
 
+    - name: Check if overlay module is loaded
+      command: lsmod
+      register: lsmod_overlay
+      changed_when: false
+
     - name: Load overlay kernel module now
       command: modprobe overlay
-      changed_when: true
+      when: "'overlay' not in lsmod_overlay.stdout"
+      changed_when: "'overlay' not in lsmod_overlay.stdout"
+
+    - name: Check if br_netfilter module is loaded
+      command: lsmod
+      register: lsmod_br_netfilter
+      changed_when: false
 
     - name: Load br_netfilter kernel module now
       command: modprobe br_netfilter
-      changed_when: true
+      when: "'br_netfilter' not in lsmod_br_netfilter.stdout"
+      changed_when: "'br_netfilter' not in lsmod_br_netfilter.stdout"
 
     - name: Persist kernel modules on boot
       copy:
